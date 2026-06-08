@@ -1,0 +1,337 @@
+@import "tailwindcss";
+
+@theme {
+  /* background tiers — Market Bubble's SaaS BLACK: neutral pure-black, zero blue
+     tint, so the overlay reads native on their stream. */
+  --color-base: #0a0a0a;
+  --color-surface: #151515;
+  --color-elevated: #1e1e1e;
+  --color-overlay: #282828;
+  --color-line: #262626;
+  --color-line-strong: #3a3a3a;
+
+  /* text tiers — warm editorial OFF-WHITE (their cream), never pure white */
+  --color-fg: #f1efe9;
+  --color-fg-dim: #b3afa4;
+  --color-fg-muted: #888379;
+
+  /* source colors — fixed, tuned for neon-on-dark legibility */
+  --color-twitch: #a970ff;
+  --color-kick: #3be54a;
+  --color-x: #ece9e2;
+  --color-x-dim: #7a7770;
+
+  /* primary accent — Market Bubble is MONOCHROME SaaS: off-white on black.
+     Buttons / tabs / active / focus / links use off-white with black ink. Red is
+     NOT a brand color here (their on-stream red is only down-price action). Only
+     Polymarket-specific widgets carry color, via the PM_BLUE constant. */
+  --color-accent: #ece9e2;
+  --color-accent-ink: #0a0a0a; /* black ink on off-white */
+  /* money highlight — donations / whales only (kept minimal, never as brand) */
+  --color-gold: #f2b33c;
+  --color-gold-ink: #1a1205;
+  /* legacy token kept for utilities; repointed to off-white (brand is monochrome) */
+  --color-mb-red: #ece9e2;
+
+  /* market semantics (desaturated for dark) */
+  --color-pos: #2fd39e; /* up / gain — teal-green, distinct from Kick lime */
+  --color-neg: #f0616d; /* down / loss */
+  --color-warn: #e0a52e; /* caution / connecting */
+  --color-whale: #ffc93d; /* big money / donations */
+  --color-hype: #ff8a3d; /* peak velocity / overheating */
+
+  /* One family everywhere — Inter (Polymarket). "mono" kept only as a token name;
+     it now resolves to Inter + tabular figures (see .font-mono rule below). */
+  --font-sans: "Inter", "Inter Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Inter", "Inter Fallback", ui-sans-serif, system-ui, sans-serif;
+  /* display = editorial serif (Market Bubble's newspaper/broadcast aesthetic) — used
+     only on brand wordmarks + big headlines; all data/body stays Inter w/ tabular nums */
+  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-base);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* "mono" is now Inter — keep digits aligned with tabular figures (Polymarket style) */
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+/* atmosphere (glow/grain/dot-grid) is rendered by <Atmosphere/>; root is the base canvas */
+#root {
+  position: relative;
+  isolation: isolate;
+  background: var(--color-base);
+}
+
+/* premium thin scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+@keyframes msgIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.msg-in {
+  animation: msgIn 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Elevated panel: depth from light + hairline border, not heavy shadow (Linear method) */
+.panel {
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+.lift {
+  transition:
+    background-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+/* New-message gold flash (AG-Grid value-change pattern) */
+@keyframes flashIn {
+  0% {
+    background-color: rgba(242, 179, 60, 0.13);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+.flash-in {
+  animation: flashIn 900ms ease-out;
+}
+
+/* Whale / big-money event card — the one strong glow (spice, not sauce) */
+.whale-card {
+  background: linear-gradient(180deg, rgba(255, 201, 61, 0.12), rgba(255, 201, 61, 0.02));
+  border: 1px solid rgba(255, 201, 61, 0.4);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+    0 0 28px rgba(255, 201, 61, 0.18);
+}
+
+@keyframes flap {
+  from {
+    transform: rotateX(-88deg);
+    opacity: 0.25;
+  }
+  to {
+    transform: rotateX(0);
+    opacity: 1;
+  }
+}
+.flap-char {
+  display: inline-block;
+  transform-origin: center top;
+  animation: flap 70ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  animation: marquee 64s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* floating soundboard reactions (Google-Meet style: rise + drift + fade) */
+@keyframes reactionFloat {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.5) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+    transform: translateY(-8vh) translateX(0) scale(1) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-82vh) translateX(var(--drift, 0px)) scale(1) rotate(var(--spin, 0deg));
+    opacity: 0;
+  }
+}
+.reaction-float {
+  animation: reactionFloat var(--dur, 3s) cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.55));
+}
+
+/* semi-transparent GIF that plays over the stream then fades (soundboard → overlay) */
+@keyframes gifPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+  7% {
+    opacity: 0.62;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  86% {
+    opacity: 0.62;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.03);
+  }
+}
+.gif-pop {
+  animation: gifPop 6s ease-in-out forwards;
+  will-change: transform, opacity;
+}
+
+/* breaking-news toast — slide in from top, hold, fade out (overlay) */
+@keyframes newsToastIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -18px) scale(0.96);
+  }
+  6% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -10px) scale(0.99);
+  }
+}
+.news-toast {
+  animation: newsToastIn 11s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* audio equalizer — animated bars on the now-playing card + active station */
+@keyframes eqbar {
+  0%,
+  100% {
+    height: 28%;
+  }
+  50% {
+    height: 100%;
+  }
+}
+.eq-bar {
+  height: 100%;
+  animation: eqbar 0.9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .msg-in,
+  .flap-char,
+  .flash-in,
+  .marquee-track,
+  .eq-bar {
+    animation: none !important;
+  }
+  .animate-ping,
+  .animate-pulse {
+    animation: none !important;
+  }
+}
+
+/* =====================================================================
+   LIGHT THEME — opt-in via `html.light` (toggle in the app header).
+   Dark stays the default. The overlay forces dark regardless.
+   Trick: Tailwind v4 compiles `white`/`black` to var(--color-white/black),
+   so flipping --color-white → dark recolors every white/x border, tint, and
+   text-white in one move. --color-black stays #000 so modal/overlay scrims
+   remain dark. Accent (blue) + accent-ink (#fff) are unchanged.
+   ===================================================================== */
+html.light {
+  color-scheme: light;
+
+  /* monochrome SaaS in light too: dark ink accent on near-white (black buttons) */
+  --color-accent: #15130f;
+  --color-accent-ink: #f4f2ec;
+
+  --color-base: #f5f4f1;
+  --color-surface: #ffffff;
+  --color-elevated: #ffffff;
+  --color-overlay: #eef1f5;
+  --color-line: #e3e7ee;
+  --color-line-strong: #cbd3df;
+
+  --color-fg: #0f141a;
+  --color-fg-dim: #47525f;
+  --color-fg-muted: #6a7686;
+
+  --color-white: #0f141a; /* flips white-alpha borders/tints/text to dark */
+
+  --color-pos: #0f9d63;
+  --color-neg: #e0414e;
+  --color-warn: #c2740a;
+  --color-whale: #b0730c;
+  --color-hype: #d2581a;
+
+  --color-twitch: #7a3cf0;
+  --color-kick: #1aa52f;
+  --color-x: #0f141a;
+  --color-x-dim: #5b6571;
+}
+
+html.light body {
+  background: var(--color-base);
+}
+
+/* panels: light hairline + soft shadow instead of the dark-mode heavy shadow */
+html.light .panel {
+  border-color: rgba(15, 20, 26, 0.1);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 10px 28px rgba(15, 23, 42, 0.08);
+}
+
+/* the ambient glow layer is a dark-mode device; light mode is clean + flat */
+html.light .atmosphere {
+  display: none;
+}

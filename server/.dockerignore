@@ -1,0 +1,6 @@
+node_modules
+npm-debug.log
+x-state.json
+*.output
+.git
+.DS_Store

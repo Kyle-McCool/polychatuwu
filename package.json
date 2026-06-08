@@ -1,0 +1,19 @@
+{
+  "name": "tape",
+  "private": true,
+  "version": "0.1.0",
+  "description": "PolyChatUwU. Unified live chat (Twitch, Kick, X) plus a crypto terminal and OBS overlay for streamers.",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,web -c green,cyan \"npm:dev:server\" \"npm:dev:web\"",
+    "dev:server": "npm run dev -w server",
+    "dev:web": "npm run dev -w web",
+    "start:server": "npm run start -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

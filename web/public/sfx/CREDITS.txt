@@ -1,0 +1,32 @@
+PolyChatUwU soundboard — sound effect credits & licenses
+=========================================================
+All 12 sounds are real, self-hosted files, cleared for commercial use.
+
+CC0 / Public Domain (no attribution required) — 9 of 12
+-------------------------------------------------------
+drumroll.mp3  — "Drum Roll Intro"   CC0           Wikimedia Commons
+                https://commons.wikimedia.org/wiki/File:Drum_Roll_Intro.ogg
+kaching.mp3   — "Cash register"      Public Domain Wikimedia Commons
+                https://commons.wikimedia.org/wiki/File:Cash_register.ogg
+applause.mp3  — "Clapping hurray"    Public Domain Wikimedia Commons
+                https://commons.wikimedia.org/wiki/File:Clapping_hurray.ogg
+siren.mp3     — "Siren"              Public Domain Wikimedia Commons
+                https://commons.wikimedia.org/wiki/File:Siren.ogg
+ding.mp3      — Kenney "confirmation_001"  CC0      kenney.nl (via gamesounds.xyz)
+pump.mp3      — Kenney "powerUp1"          CC0      kenney.nl (via gamesounds.xyz)
+dump.mp3      — Kenney "phaserDown1"       CC0      kenney.nl (via gamesounds.xyz)
+bonk.mp3      — Kenney "impactWood_medium" CC0      kenney.nl (via gamesounds.xyz)
+success.mp3   — Kenney "jingles-pizzicato" CC0      kenney.nl (via gamesounds.xyz)
+                Kenney license: https://kenney.nl/ (CC0 1.0)
+
+CC-BY (attribution required — credited here) — 3 of 12
+------------------------------------------------------
+airhorn.mp3   — "American Train Horn Nathan Airchime K5LA"  CC BY 4.0
+                Wikimedia Commons
+                https://commons.wikimedia.org/wiki/File:Sound_of_American_Train_Horn_Nathan_Airchime_K5LA.ogg
+fanfare.mp3   — "Running Fanfare" by Kevin MacLeod          CC BY 3.0
+                https://commons.wikimedia.org/wiki/File:Kevin_MacLeod_-_Running_Fanfare.ogg
+trombone.mp3  — "Sad Trombone" by Joe Lamb                  CC BY 3.0
+                https://commons.wikimedia.org/wiki/File:Sad_Trombone-Joe_Lamb-665429450.ogg
+
+All files transcoded to 128 kbps MP3 and loudness-normalized (ffmpeg). No synthesis.
