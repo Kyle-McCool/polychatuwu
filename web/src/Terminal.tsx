@@ -18,6 +18,7 @@ import { PriceTicker } from "./components/PriceTicker";
 import { LineChart, Tv } from "lucide-react";
 import { PlatformIcon, SegmentedControl } from "./components/ui";
 import { ShareCard, type ShareMoment } from "./components/ShareCard";
+import { RecapCard } from "./components/RecapCard";
 import { Reactions } from "./components/Reactions";
 import { setCustomBlocklist } from "./lib/moderation";
 import { setTickerPrices } from "./lib/coins";
@@ -92,6 +93,7 @@ export function Terminal() {
 
   const messages = sock.messages;
   const [share, setShare] = useState<ShareMoment | null>(null);
+  const [recapOpen, setRecapOpen] = useState(false);
   const channel = sock.channels.find((c) => c.platform !== "x")?.channel ?? sock.channels[0]?.channel ?? "";
 
   return (
@@ -134,6 +136,7 @@ export function Terminal() {
           messages={messages}
           channel={channel}
           onShare={setShare}
+          onRecap={() => setRecapOpen(true)}
           />
         </div>
         <main className="grid min-h-0 min-w-0 grid-cols-1 overflow-hidden grid-rows-[320px_1fr] border-x border-white/5">
@@ -219,6 +222,7 @@ export function Terminal() {
       <BottomBar connected={sock.connected} statuses={sock.statuses} count={messages.length} />
       <PolymarketTicker />
       {share && <ShareCard moment={share} onClose={() => setShare(null)} />}
+      {recapOpen && <RecapCard messages={messages} channel={channel} onClose={() => setRecapOpen(false)} />}
       <Reactions onReaction={sock.onReaction} />
       <CommandPalette
         onFilter={(mode) => setFeedFilter((f) => ({ ...f, mode }))}

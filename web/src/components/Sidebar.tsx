@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Plus, Trash2, X, ShieldCheck } from "lucide-react";
+import { Plus, Trash2, X, ShieldCheck, Clapperboard } from "lucide-react";
 import type { ChannelConfig, ChatMessage, OverlayConfig, Platform, SourceStatus } from "../lib/types";
 import { parseChannelInput } from "../lib/parseChannel";
 import { BUILTIN_SLUR_COUNT, SCAM_PATTERN_COUNT } from "../lib/wordlist";
@@ -99,6 +99,7 @@ export function Sidebar({
   messages,
   channel,
   onShare,
+  onRecap,
 }: {
   channels: ChannelConfig[];
   statuses: SourceStatus[];
@@ -119,6 +120,7 @@ export function Sidebar({
   messages: ChatMessage[];
   channel: string;
   onShare: (m: ShareMoment) => void;
+  onRecap: () => void;
 }) {
   const [platform, setPlatform] = useState<Platform>("twitch");
   const [val, setVal] = useState("");
@@ -343,6 +345,14 @@ export function Sidebar({
             config={overlayConfig}
             onConfig={onOverlayConfig}
           />
+          <section className="border-t border-white/8 pt-4">
+            <Button variant="secondary" size="sm" onClick={onRecap} icon={<Clapperboard size={14} />} className="w-full justify-center">
+              Generate stream recap
+            </Button>
+            <p className="mt-1.5 px-1 font-mono text-[9px] leading-relaxed text-fg-muted">
+              a shareable card of tonight: chat vs market record, peak hype moment, totals.
+            </p>
+          </section>
         </div>
 
         {/* always mounted so music persists across tabs; only the controls show on Audio */}
