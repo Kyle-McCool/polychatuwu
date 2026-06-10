@@ -134,7 +134,7 @@ export function Overlay() {
                 CHAT HYPE <span className="text-accent">{idx.score}</span>
               </span>
               {idx.affect !== "neutral" && (
-                <span className="font-mono text-[12px] font-bold uppercase" style={{ color: AFFECT_META[idx.affect].color }}>
+                <span className="font-mono text-[12px] font-bold uppercase text-white/80">
                   {AFFECT_META[idx.affect].label}
                 </span>
               )}
@@ -214,7 +214,7 @@ export function Overlay() {
                 <div className="flex min-w-0 items-center gap-2">
                   <WaveBars playing={np.playing} bars={6} />
                   <div className="min-w-0 max-w-[420px] truncate font-mono text-[11px] text-white/80">
-                    <span className="text-pos">♪</span> {np.title || "Stream audio"}
+                    <span className="text-white/70">♪</span> {np.title || "Stream audio"}
                     {np.author && <span className="text-white/45"> · {np.author}</span>}
                   </div>
                 </div>
@@ -226,7 +226,7 @@ export function Overlay() {
                   <span className="text-white/55">
                     CHAT HYPE <span className="font-bold text-accent">{idx.score}</span>
                     {idx.affect !== "neutral" && (
-                      <span className="ml-1" style={{ color: AFFECT_META[idx.affect].color }}>{AFFECT_META[idx.affect].label}</span>
+                      <span className="ml-1 text-white/80">{AFFECT_META[idx.affect].label}</span>
                     )}
                   </span>
                   <span className="text-white/55">
@@ -339,7 +339,7 @@ function HypeTag({ idx }: { idx: { score: number; spiking: boolean; affect: Affe
       <span className="font-bold text-accent">CHAT HYPE</span>
       <span className="tabular-nums text-white">{idx.score}</span>
       {idx.affect !== "neutral" && (
-        <span style={{ color: AFFECT_META[idx.affect].color }}>{AFFECT_META[idx.affect].label}</span>
+        <span className="text-white/80">{AFFECT_META[idx.affect].label}</span>
       )}
       {idx.spiking && <span className="rounded bg-accent px-1 font-bold text-accent-ink">CLIP IT</span>}
     </div>
@@ -358,7 +358,7 @@ function Brand() {
 }
 
 /** Stylized audio visualizer (the real audio is in the streamer's page, not here). */
-function WaveBars({ playing, color = "#2FD39E", bars = 14 }: { playing: boolean; color?: string; bars?: number }) {
+function WaveBars({ playing, color = "#ECE9E2", bars = 14 }: { playing: boolean; color?: string; bars?: number }) {
   return (
     <span className="flex h-4 items-center gap-[2px]" aria-hidden>
       {Array.from({ length: bars }).map((_, i) => (
@@ -385,7 +385,7 @@ function NowPlayingBar({ np }: { np: NowPlaying | null }) {
       <WaveBars playing={np.playing} />
       <div className="min-w-0 leading-tight" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.85)" }}>
         <div className="truncate font-mono text-[14px] text-white/90">
-          <span className="mr-0.5 text-pos">♪</span> {np.title || "Stream audio"}
+          <span className="mr-0.5 text-white/70">♪</span> {np.title || "Stream audio"}
         </div>
         {np.author && <div className="truncate font-mono text-[11px] text-white/55">{np.author}</div>}
       </div>
@@ -428,7 +428,7 @@ function NewsToast({ onNewsToast }: { onNewsToast: (cb: (n: NewsItem) => void) =
         <div className="mb-2 flex items-center gap-2.5">
           <span
             className="relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full text-[17px] font-black text-white"
-            style={{ background: tweet ? avatarBg(n.name) : PM_BLUE }}
+            style={{ background: tweet ? avatarBg(n.name) : "#33312c" }}
           >
             {tweet ? n.name.slice(0, 1).toUpperCase() : <Newspaper size={20} />}
             {tweet && n.avatar && (
@@ -445,7 +445,7 @@ function NewsToast({ onNewsToast }: { onNewsToast: (cb: (n: NewsItem) => void) =
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1">
               <span className="truncate text-[17px] font-bold text-white">{tweet ? n.name : n.source}</span>
-              {tweet && <BadgeCheck size={16} className="shrink-0" style={{ color: PM_BLUE }} />}
+              {tweet && <BadgeCheck size={16} className="shrink-0" style={{ color: "#ece9e2" }} />}
               <span className="ml-auto shrink-0 pl-2">
                 <PlatformIcon platform="x" size={19} colored={false} className="text-white" />
               </span>
