@@ -31,7 +31,33 @@ type GenreKey =
   | "synthwave" | "retro" | "phonk" | "hiphop" | "trap" | "rnb"
   | "rock" | "metal" | "edm" | "pop" | "gaming" | "reggae";
 
-const GENRES: Record<GenreKey, { name: string; color: string; Icon: LucideIcon }> = {
+// Desaturate a hue to the app's muted-minimalist register — keeps each genre subtly
+// distinguishable (like the username hue-whispers) but kills the neon. Returns hex so the
+// `${color}26` alpha-tint concatenations below keep working on both light + dark.
+function muteHex(hex: string, s = 0.3, l = 0.6): string {
+  const n = parseInt(hex.slice(1), 16);
+  const R = ((n >> 16) & 255) / 255, G = ((n >> 8) & 255) / 255, B = (n & 255) / 255;
+  const max = Math.max(R, G, B), min = Math.min(R, G, B), d = max - min;
+  let h = 0;
+  if (d) {
+    if (max === R) h = ((G - B) / d) % 6;
+    else if (max === G) h = (B - R) / d + 2;
+    else h = (R - G) / d + 4;
+    h = (h * 60 + 360) % 360;
+  }
+  const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = l - c / 2;
+  let rr = 0, gg = 0, bb = 0;
+  if (h < 60) { rr = c; gg = x; }
+  else if (h < 120) { rr = x; gg = c; }
+  else if (h < 180) { gg = c; bb = x; }
+  else if (h < 240) { gg = x; bb = c; }
+  else if (h < 300) { rr = x; bb = c; }
+  else { rr = c; bb = x; }
+  const hx = (v: number) => Math.round((v + m) * 255).toString(16).padStart(2, "0");
+  return `#${hx(rr)}${hx(gg)}${hx(bb)}`;
+}
+
+const RAW_GENRES: Record<GenreKey, { name: string; color: string; Icon: LucideIcon }> = {
   lofi:      { name: "Lo-Fi",      color: "#a78bfa", Icon: Coffee },
   chillhop:  { name: "Chillhop",   color: "#2dd4bf", Icon: Headphones },
   ambient:   { name: "Ambient",    color: "#38bdf8", Icon: Waves },
@@ -51,6 +77,13 @@ const GENRES: Record<GenreKey, { name: string; color: string; Icon: LucideIcon }
   gaming:    { name: "Gaming",     color: "#818cf8", Icon: Gamepad2 },
   reggae:    { name: "Reggae",     color: "#4ade80", Icon: Leaf },
 };
+
+// every genre color muted to the minimalist palette (hue kept, neon removed)
+const GENRES = Object.fromEntries(
+  (Object.entries(RAW_GENRES) as [GenreKey, (typeof RAW_GENRES)[GenreKey]][]).map(
+    ([k, v]) => [k, { ...v, color: muteHex(v.color) }],
+  ),
+) as Record<GenreKey, { name: string; color: string; Icon: LucideIcon }>;
 
 // Popular 24/7 music livestreams — every ID verified live + embeddable.
 type Station = { id: string; label: string; genre: GenreKey };
@@ -359,8 +392,7 @@ export function YouTubePlayer({
                 <button
                   onClick={toggle}
                   aria-label={playing ? "Pause" : "Play"}
-                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#fff] transition active:scale-95"
-                  style={{ background: accent }}
+                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent text-accent-ink transition hover:brightness-110 active:scale-95"
                 >
                   {playing ? <Pause size={15} /> : <Play size={15} className="ml-0.5" />}
                 </button>
