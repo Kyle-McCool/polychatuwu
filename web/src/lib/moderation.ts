@@ -37,6 +37,30 @@ export function isJunk(text: string): boolean {
   return hasSlur(text) || isScam(text);
 }
 
+// known-safe link hosts (the platforms + Polymarket) that should NOT be flagged
+const SAFE_LINK = /(?:twitch\.tv|kick\.com|x\.com|twitter\.com|youtu\.be|youtube\.com|polymarket\.com)/i;
+const LINKISH = /\bhttps?:\/\/\S+|\b[a-z0-9-]{2,}\.(?:com|net|io|xyz|gg|tv|ly|link|shop|app|co|me|info|vip|win|live|fun)\b/i;
+
+export type RiskFlag = { level: 1 | 2; reason: string };
+
+/**
+ * Richer moderation read than isJunk: a severity + reason for the streamer's Mod queue.
+ *   level 2 = act now (slurs, scams)
+ *   level 1 = keep an eye on it (caps shouting, off-platform links, copypasta spam)
+ * Detection only. Actually banning a user on Twitch/Kick/X needs the streamer's platform
+ * login, which stays out of scope so the tool runs keyless.
+ */
+export function classifyRisk(text: string): RiskFlag | null {
+  if (hasSlur(text)) return { level: 2, reason: "slur" };
+  if (isScam(text)) return { level: 2, reason: "scam" };
+  const t = (text || "").trim();
+  if (LINKISH.test(t) && !SAFE_LINK.test(t)) return { level: 1, reason: "link" };
+  const letters = t.replace(/[^a-zA-Z]/g, "");
+  if (letters.length >= 14 && letters === letters.toUpperCase()) return { level: 1, reason: "caps" };
+  if (/(.)\1{9,}/.test(t)) return { level: 1, reason: "spam" };
+  return null;
+}
+
 // Known chat bots — excluded from raffle votes, predictions, and leaderboards
 // so a bot can never win a giveaway or top the chatter list.
 const BOTS = new Set([

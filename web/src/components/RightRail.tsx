@@ -9,7 +9,9 @@ import { GifPicker } from "./GifPicker";
 import { PolymarketWire } from "./CryptoWire";
 import { Newswire } from "./Newswire";
 import { sentimentOf, MIN_SENTIMENT_SAMPLE } from "../lib/sentiment";
-import { isBot } from "../lib/moderation";
+import { isBot, classifyRisk } from "../lib/moderation";
+import { isReturning, rememberUser } from "../lib/regulars";
+import { ModDesk } from "./ModDesk";
 
 function userColor(user: string): string {
   let h = 0;
@@ -39,15 +41,17 @@ export function RightRail({
 }) {
   const [tab, setTab] = usePersisted<"ask" | "market" | "desk" | "wire">("tape.rightTab", "ask");
   const [wireSub, setWireSub] = usePersisted<"news" | "poly" | "coins">("tape.wireSub", "news");
-  const [deskSub, setDeskSub] = usePersisted<"fx" | "pulse">("tape.deskSub", "fx");
+  const [deskSub, setDeskSub] = usePersisted<"fx" | "pulse" | "mod">("tape.deskSub", "fx");
 
-  const { coins, traders } = useMemo(() => {
+  const { coins, traders, flagged } = useMemo(() => {
     const now = Date.now();
     const coinStats: Record<string, { mentions: number; bull: number; bear: number }> = {};
     const traderStats: Record<string, { msgs: number; tags: number; whale: number }> = {};
+    let flagged = 0; // recent messages needing moderation (drives the Desk tab badge)
 
     for (const m of messages) {
       if (isBot(m.user)) continue;
+      if (now - m.ts < 12 * 60000 && classifyRisk(m.text)) flagged += 1;
       const ts = (traderStats[m.user] ||= { msgs: 0, tags: 0, whale: 0 });
       ts.msgs += 1;
       if (m.cashtags?.length) ts.tags += m.cashtags.length;
@@ -72,19 +76,24 @@ export function RightRail({
       .sort((a, b) => b[1] - a[1])
       .slice(0, 6);
 
-    return { coins, traders };
+    return { coins, traders, flagged };
   }, [messages]);
 
-  const tabBtn = (id: "ask" | "market" | "desk" | "wire", label: string, Icon: typeof Brain) => (
+  const tabBtn = (id: "ask" | "market" | "desk" | "wire", label: string, Icon: typeof Brain, badge = 0) => (
     <button
       onClick={() => setTab(id)}
       role="tab"
       aria-selected={tab === id}
-      className={`flex shrink-0 items-center justify-center gap-1 rounded-md px-1.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-wider outline-none transition focus-visible:ring-2 focus-visible:ring-accent/50 ${
+      className={`relative flex shrink-0 items-center justify-center gap-1 rounded-md px-1.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-wider outline-none transition focus-visible:ring-2 focus-visible:ring-accent/50 ${
         tab === id ? "bg-accent text-accent-ink shadow-sm" : "text-fg-dim hover:bg-elevated/60 hover:text-fg"
       }`}
     >
       <Icon size={12} /> {label}
+      {badge > 0 && tab !== id && (
+        <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-neg px-0.5 text-[8px] font-bold text-white">
+          {badge > 9 ? "9+" : badge}
+        </span>
+      )}
     </button>
   );
 
@@ -111,12 +120,13 @@ export function RightRail({
         <FirstTimeChatters messages={messages} />
       </div>
 
-      {/* DESK — broadcast tools, sub-tabbed: FX (soundboard + GIFs you fire) | Pulse (monitor) */}
+      {/* DESK — broadcast tools, sub-tabbed: FX (soundboard + GIFs) | Pulse (monitor) | Mod (queue) */}
       <div className={tab === "desk" ? "flex flex-col gap-3" : "hidden"}>
         <div role="tablist" aria-label="Desk section" className="flex shrink-0 gap-1 rounded-md border border-white/8 bg-elevated/40 p-0.5">
           {([
             ["fx", "FX"],
             ["pulse", "Pulse"],
+            ["mod", "Mod"],
           ] as const).map(([id, label]) => (
             <button
               key={id}
@@ -128,6 +138,11 @@ export function RightRail({
               }`}
             >
               {label}
+              {id === "mod" && flagged > 0 && (
+                <span className="ml-1 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-neg px-0.5 align-middle text-[8px] font-bold text-white">
+                  {flagged > 9 ? "9+" : flagged}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -137,6 +152,9 @@ export function RightRail({
         </div>
         <div className={deskSub === "pulse" ? "" : "hidden"}>
           <StreamerDesk messages={messages} />
+        </div>
+        <div className={deskSub === "mod" ? "" : "hidden"}>
+          <ModDesk messages={messages} />
         </div>
       </div>
 
@@ -236,12 +254,15 @@ function CoinSentiment({
 // First-time chatters this session — greet them. Tracks users seen at mount as the
 // baseline (so the backlog is not flagged), then collects genuinely-new names. Lives
 // under Top chatters in the Chatters tab.
+// New chatters this session, with persistent memory layered on: a ★ marks someone the
+// streamer has seen in a PAST stream (a returning regular) vs a genuine first-timer with
+// no mark. Memory is local + keyless (see lib/regulars.ts).
 function FirstTimeChatters({ messages }: { messages: ChatMessage[] }) {
   const msgsRef = useRef(messages);
   msgsRef.current = messages;
   const known = useRef<Set<string> | null>(null);
-  const fresh = useRef<{ user: string; ts: number }[]>([]);
-  const [list, setList] = useState<{ user: string; ts: number }[]>([]);
+  const fresh = useRef<{ user: string; ts: number; returning: boolean }[]>([]);
+  const [list, setList] = useState<{ user: string; ts: number; returning: boolean }[]>([]);
 
   useEffect(() => {
     const tick = () => {
@@ -252,7 +273,9 @@ function FirstTimeChatters({ messages }: { messages: ChatMessage[] }) {
       for (const m of msgs) {
         if (now - m.ts < 60000 && !seen.has(m.user) && !isBot(m.user)) {
           seen.add(m.user);
-          fresh.current.push({ user: m.user, ts: m.ts });
+          const returning = isReturning(m.user); // seen them in a past session?
+          rememberUser(m.user); // remember for next time
+          fresh.current.push({ user: m.user, ts: m.ts, returning });
         }
       }
       fresh.current = fresh.current.filter((c) => now - c.ts < 5 * 60000).slice(-40);
@@ -263,19 +286,24 @@ function FirstTimeChatters({ messages }: { messages: ChatMessage[] }) {
     return () => clearInterval(id);
   }, []);
 
+  const regulars = list.filter((c) => c.returning).length;
+
   return (
     <section>
       <h3 className="mb-2 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-fg-muted">
-        <UserPlus size={12} /> First-time chatters {list.length > 0 && <span className="text-pos">· {list.length}</span>}
+        <UserPlus size={12} /> New chatters {list.length > 0 && <span className="text-pos">· {list.length}</span>}
+        {regulars > 0 && <span className="text-fg-muted normal-case tracking-normal">· {regulars} ★ regulars back</span>}
       </h3>
       <div className="flex flex-wrap gap-1">
         {list.length === 0 && <p className="px-1 font-mono text-[10px] text-fg-muted">none yet this session</p>}
         {list.map((c) => (
           <span
             key={c.user + c.ts}
+            title={c.returning ? "returning regular" : "first time you've seen them"}
             className="rounded-full border border-white/10 bg-elevated/50 px-2 py-0.5 font-mono text-[11px]"
             style={{ color: userColor(c.user) }}
           >
+            {c.returning && <span className="mr-0.5 text-accent">★</span>}
             {c.user}
           </span>
         ))}
