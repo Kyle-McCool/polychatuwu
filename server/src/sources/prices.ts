@@ -7,20 +7,47 @@ import type { PriceItem } from "../types";
  */
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36";
 
-// CoinGecko id, ticker, kind — order = display order
+// CoinGecko id, ticker, kind — order = display order (majors first, then L1s/L2s/DeFi,
+// then memes). Picked for relevance to crypto streamers + market chatter (top market cap,
+// Polymarket coverage, and known meme movers). All ids verified against the CoinGecko API.
 const COINS: [string, string, "crypto" | "meme"][] = [
+  // majors / market leaders
   ["bitcoin", "BTC", "crypto"],
   ["ethereum", "ETH", "crypto"],
   ["solana", "SOL", "crypto"],
-  ["hyperliquid", "HYPE", "crypto"],
-  ["ripple", "XRP", "crypto"],
   ["binancecoin", "BNB", "crypto"],
+  ["ripple", "XRP", "crypto"],
+  ["tron", "TRX", "crypto"],
+  ["cardano", "ADA", "crypto"],
+  ["avalanche-2", "AVAX", "crypto"],
+  // L1s / L2s / DeFi / infra
+  ["sui", "SUI", "crypto"],
+  ["aptos", "APT", "crypto"],
+  ["sei-network", "SEI", "crypto"],
   ["chainlink", "LINK", "crypto"],
+  ["uniswap", "UNI", "crypto"],
+  ["aave", "AAVE", "crypto"],
+  ["polkadot", "POL", "crypto"],
+  ["litecoin", "LTC", "crypto"],
+  ["near", "NEAR", "crypto"],
+  ["render-token", "RENDER", "crypto"],
+  // hot / narrative coins
+  ["hyperliquid", "HYPE", "crypto"],
+  ["jito-governance-token", "JTO", "crypto"],
+  ["jupiter-exchange-solana", "JUP", "crypto"],
+  ["worldcoin-wld", "WLD", "crypto"],
+  ["pyth-network", "PYTH", "crypto"],
+  // memes (the on-stream movers crypto chat actually talks about)
   ["dogecoin", "DOGE", "meme"],
-  ["dogwifcoin", "WIF", "meme"],
+  ["shiba-inu", "SHIB", "meme"],
   ["pepe", "PEPE", "meme"],
+  ["dogwifcoin", "WIF", "meme"],
   ["bonk", "BONK", "meme"],
   ["popcat", "POPCAT", "meme"],
+  ["fartcoin", "FART", "meme"],
+  ["mog-coin", "MOG", "meme"],
+  ["floki", "FLOKI", "meme"],
+  ["book-of-meme", "BOME", "meme"],
 ];
 const STOCKS = ["TSLA", "NVDA", "COIN", "MSTR", "AAPL", "SPY"];
 
