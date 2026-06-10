@@ -359,7 +359,7 @@ export function YouTubePlayer({
                 <button
                   onClick={toggle}
                   aria-label={playing ? "Pause" : "Play"}
-                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white transition active:scale-95"
+                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#fff] transition active:scale-95"
                   style={{ background: accent }}
                 >
                   {playing ? <Pause size={15} /> : <Play size={15} className="ml-0.5" />}

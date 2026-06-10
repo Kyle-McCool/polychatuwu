@@ -16,7 +16,7 @@ function pad(n: number) {
 function userColor(user: string, _provided: string | null): string {
   let h = 0;
   for (let i = 0; i < user.length; i += 1) h = (h * 31 + user.charCodeAt(i)) % 360;
-  return `hsl(${h}, 28%, 74%)`;
+  return `hsl(${h} var(--name-s) var(--name-l))`; // theme-tuned (see index.css)
 }
 
 // Username with a hover card showing WHERE the chatter is from (the judges' ask).

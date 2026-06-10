@@ -54,7 +54,7 @@ export function Newswire({ news }: { news: NewsItem[] }) {
               {n.kind === "tweet" ? (
                 <>
                   <span
-                    className="relative grid h-5 w-5 shrink-0 place-items-center overflow-hidden rounded-full text-[8px] font-bold text-white"
+                    className="relative grid h-5 w-5 shrink-0 place-items-center overflow-hidden rounded-full text-[8px] font-bold text-[#f1efe9]"
                     style={{ background: `hsl(${hue(n.name)}, 20%, 38%)` }}
                   >
                     {n.name.slice(0, 1).toUpperCase()}

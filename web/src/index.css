@@ -48,6 +48,13 @@
   --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
 }
 
+/* username hue-whisper knobs — inline styles use hsl(H var(--name-s) var(--name-l)),
+   so the light theme can re-tune saturation/lightness without re-rendering rows */
+:root {
+  --name-s: 28%;
+  --name-l: 74%;
+}
+
 html,
 body,
 #root {
@@ -312,10 +319,14 @@ html.light {
   --color-whale: #b0730c;
   --color-hype: #d2581a;
 
-  --color-twitch: #7a3cf0;
-  --color-kick: #1aa52f;
+  --color-twitch: #7a68a8;
+  --color-kick: #4e7d56;
   --color-x: #0f141a;
   --color-x-dim: #5b6571;
+
+  /* usernames: darker + a bit more saturated so they read on white */
+  --name-s: 45%;
+  --name-l: 36%;
 }
 
 html.light body {

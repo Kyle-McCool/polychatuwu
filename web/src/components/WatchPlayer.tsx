@@ -183,7 +183,7 @@ export function WatchPlayer({
         <XBroadcast key={`x-${shown.channel}`} bid={broadcastId(shown.channel) || ""} chrome={chrome} />
       )}
       {chrome && (
-        <span className="pointer-events-none absolute left-2 top-2 z-10 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-white/70 backdrop-blur">
+        <span className="pointer-events-none absolute left-2 top-2 z-10 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-[#f1efe9]/70 backdrop-blur">
           <Tv size={10} /> watch
         </span>
       )}
