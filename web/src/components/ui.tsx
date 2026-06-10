@@ -129,9 +129,12 @@ export function Switch({
         checked ? "bg-accent" : "bg-line-strong"
       }`}
     >
+      {/* knob carries the OPPOSITE tone of its track so the state is always visible:
+          ON  = accent track + accent-ink knob (black-on-cream dark / cream-on-black light)
+          OFF = gray track + fg knob (cream-on-gray dark / ink-on-gray light) */}
       <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition ${
-          checked ? "translate-x-4" : "translate-x-0.5"
+        className={`inline-block h-4 w-4 transform rounded-full shadow transition ${
+          checked ? "translate-x-4 bg-accent-ink" : "translate-x-0.5 bg-fg"
         }`}
       />
     </button>
