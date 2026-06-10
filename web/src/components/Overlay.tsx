@@ -262,6 +262,9 @@ export function Overlay() {
                   ) : null}
                 </div>
               )}
+              {cfg.features.lowerThird && cfg.chyron.topic.trim() && (
+                <LowerThird topic={cfg.chyron.topic} guests={cfg.chyron.guests} />
+              )}
             </div>
             {/* thin data bar — crowd-vs-market (left) + compact chat-hype candle (right) */}
             {(cfg.features.candle || cfg.features.market) && (
@@ -353,6 +356,25 @@ function Brand() {
       <span className="text-xs font-bold tracking-wide text-white/85" style={{ fontFamily: "var(--font-display)", textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
         PolyChatUwU
       </span>
+    </div>
+  );
+}
+
+/** Broadcast lower-third — serif "NOW DISCUSSING" banner + guest plates, like a TV chyron. */
+function LowerThird({ topic, guests }: { topic: string; guests: string[] }) {
+  return (
+    <div className="absolute bottom-3 left-3 z-20 max-w-[80%]" style={{ animation: "msgIn 260ms ease-out" }}>
+      <div className="inline-flex flex-col rounded-sm border-l-[3px] border-accent bg-black/85 px-4 py-2 backdrop-blur-sm">
+        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-accent">Now discussing</span>
+        <span className="font-display text-[28px] font-bold leading-[1.05] text-white" style={{ textShadow: "0 2px 10px rgba(0,0,0,0.95)" }}>
+          {topic}
+        </span>
+        {guests.length > 0 && (
+          <span className="mt-1 font-display text-[15px] font-medium tracking-wide text-white/80" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
+            {guests.join("   ·   ")}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

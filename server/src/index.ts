@@ -245,9 +245,18 @@ wss.on("connection", (ws) => {
         features[k] = typeof feats[k] === "boolean" ? (feats[k] as boolean) : DEFAULT_OVERLAY_CONFIG.features[k];
       }
       const m = msg.data.market;
+      const ch = msg.data.chyron;
+      const chyron = {
+        topic: ch && typeof ch.topic === "string" ? ch.topic.slice(0, 120) : "",
+        guests:
+          ch && Array.isArray(ch.guests)
+            ? ch.guests.filter((g: unknown) => typeof g === "string").map((g: string) => g.trim().slice(0, 40)).filter(Boolean).slice(0, 6)
+            : [],
+      };
       overlayConfig = {
         features,
         market: m && typeof m.slug === "string" ? { slug: String(m.slug).slice(0, 160), label: String(m.label || "").slice(0, 240) } : null,
+        chyron,
       };
       broadcast({ type: "overlayConfig", data: overlayConfig });
     } else if (msg?.type === "reaction" && (typeof msg.data?.sound === "string" || typeof msg.data?.gif === "string")) {

@@ -62,14 +62,21 @@ export interface PinnedMarket {
   label: string;
 }
 
+export interface Chyron {
+  topic: string; // the "NOW DISCUSSING" lower-third headline
+  guests: string[]; // guest name plates (e.g. Ansem, Banks)
+}
+
 export interface OverlayConfig {
   features: Record<OverlayFeature, boolean>;
   market: PinnedMarket | null; // null = auto-pick top crypto market
+  chyron: Chyron; // broadcast lower-third (shown when features.lowerThird is on)
 }
 
 export const DEFAULT_OVERLAY_CONFIG: OverlayConfig = {
   features: { index: true, candle: true, market: true, chat: true, chatters: true, wire: true, ticker: true, reactions: true, audio: true, news: true, lowerThird: false },
   market: null,
+  chyron: { topic: "", guests: [] },
 };
 
 // What music the streamer is playing — relayed to the overlay for the waveform widget.

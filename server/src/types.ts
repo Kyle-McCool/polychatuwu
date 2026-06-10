@@ -59,14 +59,21 @@ export interface PinnedMarket {
   label: string;
 }
 
+export interface Chyron {
+  topic: string;
+  guests: string[];
+}
+
 export interface OverlayConfig {
   features: Record<OverlayFeature, boolean>;
   market: PinnedMarket | null;
+  chyron: Chyron; // broadcast lower-third (shown when features.lowerThird is on)
 }
 
 export const DEFAULT_OVERLAY_CONFIG: OverlayConfig = {
   features: { index: true, candle: true, market: true, chat: true, chatters: true, wire: true, ticker: true, reactions: true, audio: true, news: true, lowerThird: false },
   market: null,
+  chyron: { topic: "", guests: [] },
 };
 
 export interface NowPlaying {
