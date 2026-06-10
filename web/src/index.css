@@ -27,9 +27,6 @@
      Polymarket-specific widgets carry color, via the PM_BLUE constant. */
   --color-accent: #ece9e2;
   --color-accent-ink: #0a0a0a; /* black ink on off-white */
-  /* money highlight — donations / whales only (kept minimal, never as brand) */
-  --color-gold: #f2b33c;
-  --color-gold-ink: #1a1205;
   /* legacy token kept for utilities; repointed to off-white (brand is monochrome) */
   --color-mb-red: #ece9e2;
 
@@ -128,10 +125,10 @@ body {
     transform 140ms ease;
 }
 
-/* New-message gold flash (AG-Grid value-change pattern) */
+/* New-message flash (AG-Grid value-change pattern) — brand off-white wash */
 @keyframes flashIn {
   0% {
-    background-color: rgba(242, 179, 60, 0.13);
+    background-color: rgba(236, 233, 226, 0.13);
   }
   100% {
     background-color: transparent;

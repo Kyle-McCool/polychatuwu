@@ -27,7 +27,7 @@ type Snapshot = {
   ts: number;
 };
 
-const ACCENT = "#F2B33C"; // chat = gold
+const ACCENT = "#ECE9E2"; // chat = off-white (monochrome brand; matches the overlay's CROWD)
 const MIN_SAMPLE = 10; // don't show a confident % below this many unique voters
 const MIN_META = 5; // surprisingly-popular needs at least this many meta-predictions
 

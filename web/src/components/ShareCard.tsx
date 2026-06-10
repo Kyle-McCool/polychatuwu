@@ -10,7 +10,8 @@ export type ShareMoment = {
   led: boolean | null;
 };
 
-const ACCENT = "#F2B33C";
+// brand: monochrome SaaS black + off-white; chat = off-white, market = Polymarket blue
+const ACCENT = "#ECE9E2";
 const W = 1200;
 const H = 675;
 
@@ -54,10 +55,10 @@ export function ShareCard({ moment, onClose }: { moment: ShareMoment; onClose: (
 
     const spread = moment.chatPct - moment.marketPct;
 
-    // bg
+    // bg — neutral SaaS black, zero blue tint
     const g = ctx.createLinearGradient(0, 0, W, H);
-    g.addColorStop(0, "#0A0E17");
-    g.addColorStop(1, "#070910");
+    g.addColorStop(0, "#121212");
+    g.addColorStop(1, "#0a0a0a");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
     // accent frame
@@ -68,7 +69,7 @@ export function ShareCard({ moment, onClose }: { moment: ShareMoment; onClose: (
     // header
     ctx.textBaseline = "alphabetic";
     ctx.font = "700 30px 'Inter', sans-serif";
-    ctx.fillStyle = "#F2F5FA";
+    ctx.fillStyle = "#f1efe9";
     ctx.textAlign = "left";
     ctx.fillText("PolyChatUwU", 112, 74);
     ctx.font = "700 22px 'Inter', sans-serif";
@@ -77,13 +78,13 @@ export function ShareCard({ moment, onClose }: { moment: ShareMoment; onClose: (
     ctx.fillText("◆ POLYMARKET", W - 56, 72);
 
     ctx.font = "700 15px 'Inter', sans-serif";
-    ctx.fillStyle = "#6F7A8B";
+    ctx.fillStyle = "#888379";
     ctx.textAlign = "left";
     ctx.fillText("CROWD  vs  MARKET", 56, 110);
 
     // question
     ctx.font = "600 38px 'Inter', sans-serif";
-    ctx.fillStyle = "#E8ECF2";
+    ctx.fillStyle = "#f1efe9";
     const lines = wrap(ctx, moment.label || "Will it happen?", W - 112);
     lines.forEach((ln, i) => ctx.fillText(ln, 56, 168 + i * 48));
 
@@ -131,7 +132,7 @@ export function ShareCard({ moment, onClose }: { moment: ShareMoment; onClose: (
 
     // footer
     ctx.font = "600 22px 'Inter', sans-serif";
-    ctx.fillStyle = "#8B95A3";
+    ctx.fillStyle = "#b3afa4";
     ctx.textAlign = "left";
     const who = moment.channel ? `@${moment.channel.replace(/^@/, "")}` : "live chat";
     ctx.fillText(`${who} · chat is a market`, 56, H - 44);

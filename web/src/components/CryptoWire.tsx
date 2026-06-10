@@ -4,11 +4,13 @@ import { fetchOdds, PM_BLUE, type PMItem } from "../lib/polymarket";
 import { EmptyState } from "./ui";
 
 const MOVE_PTS = 4; // |24h change| ≥ this (points) = a "big move" breaking highlight
+// Polymarket-specific widget → category tags all carry Polymarket blue (the label text
+// still tells the categories apart). Red/green stays reserved for 24h move direction.
 const CAT_COLOR: Record<string, string> = {
-  Crypto: "#F2B33C",
-  Sports: "#2FD39E",
+  Crypto: PM_BLUE,
+  Sports: PM_BLUE,
   Politics: PM_BLUE,
-  Hot: "#FF8A3D",
+  Hot: PM_BLUE,
 };
 
 /**

@@ -4,7 +4,7 @@ import { hypeSeries, type Affect } from "../lib/hype";
 
 const UP = "#2FD39E";
 const DOWN = "#F0616D";
-const GOLD = "#F2B33C";
+const CLIP = "#ECE9E2"; // clip-moment marker = brand off-white (matches the CLIP IT pill)
 
 type C = { t: number; o: number; h: number; l: number; c: number; v: number; clip: boolean; synth: boolean; affect: Affect };
 
@@ -134,7 +134,7 @@ export function CandleChart({ messages, bucketSec = 60, compact = false }: { mes
           ctx.moveTo(0, y);
           ctx.lineTo(W - padR, y);
           ctx.stroke();
-          ctx.fillStyle = "#8b95a3";
+          ctx.fillStyle = "#888379";
           ctx.textAlign = "left";
           ctx.fillText(val.toFixed(0), W - padR + 6, y);
         }
@@ -180,7 +180,7 @@ export function CandleChart({ messages, bucketSec = 60, compact = false }: { mes
 
         if (k.clip && !k.synth) {
           const yTop = yOf(k.h);
-          ctx.fillStyle = GOLD;
+          ctx.fillStyle = CLIP;
           ctx.beginPath();
           ctx.moveTo(cx, yTop - 5);
           ctx.lineTo(cx - 3.5, yTop - 10);
@@ -232,7 +232,7 @@ export function CandleChart({ messages, bucketSec = 60, compact = false }: { mes
         ctx.globalAlpha = 1;
         ctx.fillStyle = col;
         ctx.fillRect(W - padR, y - 7, padR, 14);
-        ctx.fillStyle = "#07090d";
+        ctx.fillStyle = "#0a0a0a";
         ctx.font = "bold 10px 'Inter', sans-serif";
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
