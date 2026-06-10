@@ -145,7 +145,7 @@ export function RecapCard({ messages, channel, onClose }: { messages: ChatMessag
         ctx.textAlign = "left";
         ctx.font = "700 30px 'Inter', sans-serif";
         ctx.fillStyle = "#f1efe9";
-        ctx.fillText("PolyChatUwU", 112, 74);
+        ctx.fillText("Market Bubble", 112, 74);
         ctx.textAlign = "right";
         ctx.font = "700 22px 'Inter', sans-serif";
         ctx.fillStyle = PM_BLUE;
@@ -252,7 +252,7 @@ export function RecapCard({ messages, channel, onClose }: { messages: ChatMessag
         ctx.fillText("unified chat · prediction-market terminal", 56, H - 40);
         ctx.textAlign = "right";
         ctx.fillStyle = ACCENT;
-        ctx.fillText("polychatuwu", W - 56, H - 40);
+        ctx.fillText("Market Bubble", W - 56, H - 40);
 
         // mascot lockup, top-left (same-origin → export never taints)
         if (mascotImg && mascotImg.complete && mascotImg.naturalWidth) {
@@ -273,7 +273,7 @@ export function RecapCard({ messages, channel, onClose }: { messages: ChatMessag
     const canvas = canvasRef.current;
     if (!canvas) return;
     const a = document.createElement("a");
-    a.download = `polychatuwu-recap-${Date.now()}.png`;
+    a.download = `market-bubble-recap-${Date.now()}.png`;
     a.href = canvas.toDataURL("image/png");
     a.click();
   }

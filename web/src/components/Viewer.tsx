@@ -20,7 +20,7 @@ export function Viewer() {
         <span className="flex items-center gap-2.5">
           <img src="/logo-icon.png" alt="" className="h-6 w-auto" />
           <span className="text-[15px] font-bold tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
-            PolyChatUwU
+            Market Bubble
           </span>
           <span className="ml-1 flex items-center gap-1 font-mono text-[11px] text-pos">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-pos" /> LIVE
@@ -30,7 +30,7 @@ export function Viewer() {
       </header>
 
       <main className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <h1 className="sr-only">PolyChatUwU live stream and shared chat</h1>
+        <h1 className="sr-only">Market Bubble live stream and shared chat</h1>
         {/* stream */}
         <div className="relative min-h-0 flex-1 bg-black lg:flex-[2]">
           <WatchPlayer channels={sock.channels} active={sock.watch} />

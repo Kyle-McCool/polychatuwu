@@ -354,7 +354,7 @@ function Brand() {
     <div className="pointer-events-none absolute bottom-3 right-4 flex items-center gap-1.5 opacity-60">
       <img src="/logo-icon.png" alt="" className="h-5 w-auto" />
       <span className="text-xs font-bold tracking-wide text-white/85" style={{ fontFamily: "var(--font-display)", textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
-        PolyChatUwU
+        Market Bubble
       </span>
     </div>
   );

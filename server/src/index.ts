@@ -322,7 +322,7 @@ wss.on("connection", (ws) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`[polychatuwu] server listening on :${PORT}`);
+  console.log(`[market-bubble] server listening on :${PORT}`);
   newswire.start();
   priceFeed.start();
 });

@@ -2,7 +2,7 @@
   "name": "tape",
   "private": true,
   "version": "0.1.0",
-  "description": "PolyChatUwU. Unified live chat (Twitch, Kick, X) plus a crypto terminal and OBS overlay for streamers.",
+  "description": "Market Bubble. Unified live chat (Twitch, Kick, X) plus a crypto terminal and OBS overlay for streamers.",
   "workspaces": [
     "server",
     "web"

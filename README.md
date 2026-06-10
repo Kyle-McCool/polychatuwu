@@ -1,4 +1,4 @@
-# PolyChatUwU
+# Market Bubble
 
 One screen for live crypto streaming. Every chat (Twitch, Kick, X) merged into a single feed, a market terminal beside it (live prices, Polymarket odds, a crypto newswire), and a broadcast overlay you drop straight into OBS. No API keys, no logins, no paid services.
 

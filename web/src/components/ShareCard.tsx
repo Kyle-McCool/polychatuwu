@@ -71,7 +71,7 @@ export function ShareCard({ moment, onClose }: { moment: ShareMoment; onClose: (
     ctx.font = "700 30px 'Inter', sans-serif";
     ctx.fillStyle = "#f1efe9";
     ctx.textAlign = "left";
-    ctx.fillText("PolyChatUwU", 112, 74);
+    ctx.fillText("Market Bubble", 112, 74);
     ctx.font = "700 22px 'Inter', sans-serif";
     ctx.fillStyle = PM_BLUE;
     ctx.textAlign = "right";
@@ -138,7 +138,7 @@ export function ShareCard({ moment, onClose }: { moment: ShareMoment; onClose: (
     ctx.fillText(`${who} · chat is a market`, 56, H - 44);
     ctx.textAlign = "right";
     ctx.fillStyle = ACCENT;
-    ctx.fillText("polychatuwu", W - 56, H - 44);
+    ctx.fillText("Market Bubble", W - 56, H - 44);
 
     // mascot brand lockup, top-left (same-origin image → export never taints)
     if (mascotImg && mascotImg.complete && mascotImg.naturalWidth) {

@@ -28,7 +28,7 @@ export function StatusBar({
           className="text-[15px] font-bold tracking-tight text-fg"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          PolyChatUwU
+          Market Bubble
         </span>
       </span>
 

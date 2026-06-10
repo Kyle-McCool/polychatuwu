@@ -46,7 +46,7 @@ export function BottomBar({
         <span className="flex items-center gap-1 tabular-nums">
           <MessageSquare size={11} /> {count.toLocaleString()}
         </span>
-        <span className="text-fg-muted/60">PolyChatUwU v0.1</span>
+        <span className="text-fg-muted/60">Market Bubble v0.1</span>
       </div>
     </footer>
   );

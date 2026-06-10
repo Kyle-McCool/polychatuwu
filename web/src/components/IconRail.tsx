@@ -43,8 +43,8 @@ export function IconRail({
 }) {
   return (
     <nav className="flex flex-col items-center gap-1 border-r border-white/5 bg-base/30 px-1.5 py-3">
-      <div className="mb-2 flex h-8 w-8 items-center justify-center" title="PolyChatUwU">
-        <img src="/logo-icon.png" alt="PolyChatUwU" className="h-7 w-7 object-contain" />
+      <div className="mb-2 flex h-8 w-8 items-center justify-center" title="Market Bubble">
+        <img src="/logo-icon.png" alt="Market Bubble" className="h-7 w-7 object-contain" />
       </div>
       <RailButton icon={MessageSquare} label="Feed" active />
       <RailButton icon={PanelLeft} label="Studio" active={leftOpen} onClick={onToggleLeft} />
