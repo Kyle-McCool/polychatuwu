@@ -9,13 +9,14 @@ function pad(n: number) {
   return n.toString().padStart(2, "0");
 }
 
-// Deterministic vivid color per username (Twitch/IRC convention) when the platform
-// doesn't provide one — fills the feed with consistent, scannable color.
-function userColor(user: string, provided: string | null): string {
-  if (provided) return provided;
+// Deterministic MUTED color per username — Market Bubble's frame is cream-on-black
+// minimalist, so usernames get a soft hue whisper (still scannable, never neon).
+// Platform-provided colors (Twitch's neon picks) are deliberately ignored so one
+// loud user can't break the monochrome look.
+function userColor(user: string, _provided: string | null): string {
   let h = 0;
   for (let i = 0; i < user.length; i += 1) h = (h * 31 + user.charCodeAt(i)) % 360;
-  return `hsl(${h}, 72%, 67%)`;
+  return `hsl(${h}, 28%, 74%)`;
 }
 
 // Username with a hover card showing WHERE the chatter is from (the judges' ask).

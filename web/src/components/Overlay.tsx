@@ -22,7 +22,7 @@ const NO_RE = /\b(no|nope|nah|down|short|lower|under|red|dump|rug|bear)\b|🔴|�
 function userColor(u: string): string {
   let h = 0;
   for (let i = 0; i < u.length; i += 1) h = (h * 31 + u.charCodeAt(i)) % 360;
-  return `hsl(${h}, 72%, 70%)`;
+  return `hsl(${h}, 28%, 76%)`; // muted hue whisper — matches the cream-on-black frame
 }
 
 /**
@@ -396,7 +396,7 @@ function NowPlayingBar({ np }: { np: NowPlaying | null }) {
 function avatarBg(s: string): string {
   let h = 0;
   for (let i = 0; i < s.length; i += 1) h = (h * 31 + s.charCodeAt(i)) % 360;
-  return `hsl(${h}, 58%, 45%)`;
+  return `hsl(${h}, 20%, 38%)`; // muted avatar fallback
 }
 
 /** Twitter-style breaking-news toast — slides in, holds, fades (server-throttled). */
@@ -679,7 +679,7 @@ function OverlayRow({ m, compact }: { m: ChatMessage; compact?: boolean }) {
               Host
             </span>
           )}
-          <span className="mr-1.5 font-bold" style={{ color: host ? "#fff" : m.color || src.color }}>
+          <span className="mr-1.5 font-bold" style={{ color: host ? "#fff" : userColor(m.user) }}>
             {m.user}
           </span>
           {whale && <span className="mr-1.5 rounded bg-whale px-1.5 py-0.5 text-xs font-extrabold text-accent-ink">+{m.amount}</span>}

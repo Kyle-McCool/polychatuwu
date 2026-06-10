@@ -55,7 +55,7 @@ export function Newswire({ news }: { news: NewsItem[] }) {
                 <>
                   <span
                     className="relative grid h-5 w-5 shrink-0 place-items-center overflow-hidden rounded-full text-[8px] font-bold text-white"
-                    style={{ background: `hsl(${hue(n.name)}, 58%, 45%)` }}
+                    style={{ background: `hsl(${hue(n.name)}, 20%, 38%)` }}
                   >
                     {n.name.slice(0, 1).toUpperCase()}
                     {n.avatar && (
@@ -77,7 +77,7 @@ export function Newswire({ news }: { news: NewsItem[] }) {
               ) : (
                 <span
                   className="rounded px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-wide"
-                  style={{ background: `hsl(${hue(n.source)}, 55%, 20%)`, color: `hsl(${hue(n.source)}, 75%, 72%)` }}
+                  style={{ background: `hsl(${hue(n.source)}, 16%, 20%)`, color: `hsl(${hue(n.source)}, 26%, 74%)` }}
                 >
                   {n.source}
                 </span>

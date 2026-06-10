@@ -14,7 +14,7 @@ import { isBot } from "../lib/moderation";
 function userColor(user: string): string {
   let h = 0;
   for (let i = 0; i < user.length; i += 1) h = (h * 31 + user.charCodeAt(i)) % 360;
-  return `hsl(${h}, 72%, 67%)`;
+  return `hsl(${h}, 28%, 74%)`; // muted — matches the minimalist frame
 }
 
 /**

@@ -15,9 +15,11 @@
   --color-fg-dim: #b3afa4;
   --color-fg-muted: #888379;
 
-  /* source colors — fixed, tuned for neon-on-dark legibility */
-  --color-twitch: #a970ff;
-  --color-kick: #3be54a;
+  /* source colors — desaturated to match Market Bubble's minimalist cream-on-black
+     frame: a whisper of each platform's hue (lavender / sage / cream), never neon.
+     Icon SHAPES carry the identity; color is just a hint. */
+  --color-twitch: #b9aed3;
+  --color-kick: #a3c4a8;
   --color-x: #ece9e2;
   --color-x-dim: #7a7770;
 
