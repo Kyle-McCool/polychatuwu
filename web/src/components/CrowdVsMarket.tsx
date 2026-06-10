@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Megaphone, Share2, Trophy, Zap, Search, X, Brain } from "lucide-react";
+import { Megaphone, Share2, Flame, Zap, Search, X, Brain } from "lucide-react";
 import type { ChatMessage, OverlayConfig } from "../lib/types";
+import { usePersisted } from "../hooks/usePersisted";
 import {
   fetchCryptoMarkets,
   fetchMarketBySlug,
@@ -27,7 +28,9 @@ type Snapshot = {
   ts: number;
 };
 
-const ACCENT = "#ECE9E2"; // chat = off-white (monochrome brand; matches the overlay's CROWD)
+// chat = the brand accent (theme-aware: off-white on dark, dark ink on light) so it reads
+// in both themes here on the dashboard. The overlay keeps its own always-off-white CROWD.
+const ACCENT = "var(--color-accent)";
 const MIN_SAMPLE = 10; // don't show a confident % below this many unique voters
 const MIN_META = 5; // surprisingly-popular needs at least this many meta-predictions
 
@@ -76,6 +79,8 @@ export function CrowdVsMarket({
   const [secsLeft, setSecsLeft] = useState(0);
   const [snaps, setSnaps] = useState<Snapshot[]>([]);
   const snapsRef = useRef<Snapshot[]>([]);
+  // chat's running track record vs the market, persisted so it accumulates across streams
+  const [record, setRecord] = usePersisted<{ led: boolean; ts: number }[]>("tape.crowdRecord", []);
   const rechecks = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => rechecks.current.forEach(clearTimeout), []);
 
@@ -173,6 +178,7 @@ export function CrowdVsMarket({
                   : null;
               snapsRef.current = snapsRef.current.map((s) => (s === snap ? { ...s, marketLater: later, led } : s));
               setSnaps([...snapsRef.current]);
+              if (led !== null) setRecord((r) => [{ led, ts: now }, ...r].slice(0, 200));
             })
             .catch(() => {});
         }, RECHECK_MS);
@@ -207,9 +213,17 @@ export function CrowdVsMarket({
       : null;
   const marketYes = round ? round.marketStart : featured?.yesPct ?? null;
   const spread = chatYes != null && marketYes != null ? chatYes - marketYes : null;
-  const ledRounds = snaps.filter((s) => s.led !== null);
-  const ledCount = ledRounds.filter((s) => s.led).length;
   const last = snaps[0];
+  // aggregate track record (persisted): how often chat's call led the market
+  const resolved = record.length;
+  const chatWins = record.reduce((a, r) => a + (r.led ? 1 : 0), 0);
+  const marketWins = resolved - chatWins;
+  const winRate = resolved ? Math.round((chatWins / resolved) * 100) : 0;
+  let streak = 0;
+  for (const r of record) {
+    if (r.led) streak += 1;
+    else break;
+  }
 
   function share() {
     const m = last;
@@ -221,21 +235,46 @@ export function CrowdVsMarket({
 
   return (
     <section>
-      <h3 className="mb-2 flex items-center justify-between font-mono text-[11px] uppercase tracking-wider text-fg-muted">
-        <span className="flex items-center gap-1.5">
-          <img src={PM_ICON} alt="" width={12} height={12} /> The bet · Crowd vs Market
-        </span>
-        {ledRounds.length > 0 && (
-          <span className="flex items-center gap-1 text-pos">
-            <Trophy size={11} /> chat led {ledCount}/{ledRounds.length}
-          </span>
-        )}
+      <h3 className="mb-2 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-fg-muted">
+        <img src={PM_ICON} alt="" width={12} height={12} /> The bet
       </h3>
 
       <div
         className="rounded-xl border p-3"
         style={{ borderColor: `${PM_BLUE}55`, background: `linear-gradient(160deg, ${PM_BLUE}14, transparent 70%)` }}
       >
+        {/* CROWD vs MARKET scoreboard — chat's running record against the market */}
+        <div className="mb-3 rounded-lg border border-white/8 bg-white/[0.04] px-3 py-2">
+          <div className="text-center font-display text-[15px] font-bold tracking-tight text-fg">
+            Crowd <span className="text-fg-muted">vs</span> Market
+          </div>
+          {resolved > 0 ? (
+            <>
+              <div className="mt-1.5 flex items-center justify-center gap-4 font-mono tabular-nums">
+                <span className="flex flex-col items-center">
+                  <span className="text-[8px] font-bold uppercase tracking-[0.15em]" style={{ color: ACCENT }}>Chat</span>
+                  <span className="text-[24px] font-black leading-none" style={{ color: ACCENT }}>{chatWins}</span>
+                </span>
+                <span className="text-fg-muted">·</span>
+                <span className="flex flex-col items-center">
+                  <span className="text-[8px] font-bold uppercase tracking-[0.15em]" style={{ color: PM_BLUE }}>Market</span>
+                  <span className="text-[24px] font-black leading-none" style={{ color: PM_BLUE }}>{marketWins}</span>
+                </span>
+              </div>
+              <div className="mt-1.5 flex items-center justify-center gap-2 font-mono text-[10px] text-fg-muted">
+                <span>chat leads <span className="font-bold text-fg-dim">{winRate}%</span> of {resolved}</span>
+                {streak >= 2 && (
+                  <span className="flex items-center gap-0.5 font-bold text-accent">
+                    <Flame size={10} /> {streak} in a row
+                  </span>
+                )}
+              </div>
+            </>
+          ) : (
+            <p className="mt-1 text-center font-mono text-[10px] text-fg-muted">run a round below and chat's record builds here</p>
+          )}
+        </div>
+
         {/* current bet (shown on overlay) + clear-to-auto */}
         <div className="flex items-start gap-2">
           <span className="mt-0.5 shrink-0 rounded px-1 font-mono text-[9px] font-bold uppercase tracking-wide" style={{ background: `${PM_BLUE}22`, color: PM_BLUE }}>

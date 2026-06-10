@@ -562,9 +562,11 @@ function OverlayMarket({ messages, pinned, compact }: { messages: ChatMessage[];
 
   return (
     <div className="shrink-0 rounded-sm border bg-black/80 p-3 backdrop-blur-sm" style={{ borderColor: `${PM_BLUE}66` }}>
-      <div className="mb-1.5 flex items-center justify-between font-mono text-[11px] uppercase tracking-wider text-white/55">
-        <span>Crowd vs Market</span>
-        <span style={{ color: PM_BLUE }}>◆ Polymarket</span>
+      <div className="mb-1.5 flex items-center justify-between text-[11px] text-white/55">
+        <span className="font-display text-[15px] font-bold leading-none tracking-tight text-white/90">
+          Crowd <span className="text-white/45">vs</span> Market
+        </span>
+        <span className="font-mono uppercase tracking-wider" style={{ color: PM_BLUE }}>◆ Polymarket</span>
       </div>
       <div className="mb-2 line-clamp-2 font-display text-[19px] font-bold leading-tight" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.85)" }}>
         {market ? market.label : pinned?.label ?? "loading market…"}
