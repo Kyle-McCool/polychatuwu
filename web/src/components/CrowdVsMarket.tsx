@@ -161,6 +161,7 @@ export function CrowdVsMarket({
       setTally({ yes: y, no: n, metaMean: metaCount ? metaSum / metaCount : null, metaCount });
 
       if (left <= 0) {
+        clearInterval(id); // finalize exactly once: stop ticks now, before the async setRound(null)
         const total = y + n;
         const chatYes = total ? Math.round((y / total) * 100) : 50;
         const snap: Snapshot = { label: round.label, chatYes, marketStart: round.marketStart, marketLater: null, led: null, ts: now };

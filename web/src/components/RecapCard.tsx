@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, Copy, Check, X } from "lucide-react";
 import { PM_BLUE } from "../lib/polymarket";
 import { hypeSeries, classify, AFFECT_META, type Affect } from "../lib/hype";
+import { plainMessageText } from "../lib/renderMessage";
 import { isBot } from "../lib/moderation";
 import type { ChatMessage, Platform } from "../lib/types";
 
@@ -74,9 +75,13 @@ function buildRecap(messages: ChatMessage[]): Recap {
     let best = series[0];
     for (const p of series) if (p.score > (best?.score ?? -1)) best = p;
     if (best) {
-      // a representative line near the peak second (most affect-bearing, non-bot)
-      const near = real.filter((m) => Math.abs(Math.floor(m.ts / 1000) - best.sec) <= 2);
-      near.sort((a, b) => classify(b.text).emoteWeight - classify(a.text).emoteWeight || b.text.length - a.text.length);
+      // a representative line near the peak second (most affect-bearing, non-bot) — use the
+      // plain text so emote tokens never leak, and skip lines that are empty once stripped
+      const near = real
+        .filter((m) => Math.abs(Math.floor(m.ts / 1000) - best.sec) <= 2)
+        .map((m) => ({ m, plain: plainMessageText(m.text) }))
+        .filter((x) => x.plain.length > 0);
+      near.sort((a, b) => classify(b.m.text).emoteWeight - classify(a.m.text).emoteWeight || b.plain.length - a.plain.length);
       const sample = near[0];
       if (sample) {
         const d = new Date(best.sec * 1000);
@@ -84,8 +89,8 @@ function buildRecap(messages: ChatMessage[]): Recap {
           affect: best.affect,
           score: Math.round(best.score),
           clockLabel: d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
-          text: sample.text,
-          user: sample.user,
+          text: sample.plain,
+          user: sample.m.user,
         };
       }
     }
@@ -170,11 +175,13 @@ export function RecapCard({ messages, channel, onClose }: { messages: ChatMessag
           ctx.fillStyle = ACCENT;
           ctx.fillText(`CHAT ${recap.record.chatWins}`, 56, 256);
           const chatW = ctx.measureText(`CHAT ${recap.record.chatWins}`).width;
+          ctx.font = "800 56px 'Inter', sans-serif";
           ctx.fillStyle = "#5b574f";
-          ctx.fillText("—", 56 + chatW + 28, 256);
-          const dashW = ctx.measureText("—").width;
+          ctx.fillText("vs", 56 + chatW + 30, 250);
+          const vsW = ctx.measureText("vs").width;
+          ctx.font = "800 84px 'Inter', sans-serif";
           ctx.fillStyle = PM_BLUE;
-          ctx.fillText(`${recap.record.marketWins} MARKET`, 56 + chatW + 28 + dashW + 28, 256);
+          ctx.fillText(`${recap.record.marketWins} MARKET`, 56 + chatW + 30 + vsW + 30, 256);
 
           ctx.font = "600 24px 'Inter', sans-serif";
           ctx.fillStyle = "#b3afa4";

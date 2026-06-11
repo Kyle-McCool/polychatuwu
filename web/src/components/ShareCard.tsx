@@ -119,7 +119,7 @@ export function ShareCard({ moment, onClose }: { moment: ShareMoment; onClose: (
     ctx.font = "800 50px 'Inter', sans-serif";
     if (moment.led === true) {
       ctx.fillStyle = "#2FD39E";
-      ctx.fillText("📈 THE MARKET MOVED CHAT'S WAY", W / 2, baseY + 210);
+      ctx.fillText("THE MARKET MOVED CHAT'S WAY", W / 2, baseY + 210);
     } else {
       const ahead = spread >= 0;
       ctx.fillStyle = ahead ? ACCENT : PM_BLUE;

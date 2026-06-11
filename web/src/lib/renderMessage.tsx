@@ -95,6 +95,19 @@ export function Emote({ provider, id, name, size = 20 }: { provider: string; id:
   );
 }
 
+/**
+ * Plain-text form of a chat message: emote tokens collapse to their readable name,
+ * cashtags keep their $. For surfaces that can't render emote images or React nodes
+ * (canvas cards, TTS, exports), so raw [temote:...] tokens never leak to the viewer.
+ */
+export function plainMessageText(text: string): string {
+  return (text || "")
+    .replace(/\[emote:\d+:([^\]]+)\]/g, "$1")
+    .replace(/\[temote:\w+:[\w-]+:([^\]]+)\]/g, "$1")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 /** Tokenize chat text into React nodes: Kick + Twitch emotes -> <img>, cashtags -> accent. */
 export function renderMessageText(text: string, emoteSize = 20): ReactNode[] {
   const nodes: ReactNode[] = [];

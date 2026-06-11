@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { HelpCircle, Coins } from "lucide-react";
 import type { ChatMessage } from "../lib/types";
 import { isQuestion, isJunk, isBot } from "../lib/moderation";
+import { renderMessageText } from "../lib/renderMessage";
 import { EmptyState } from "./ui";
 
 function userColor(user: string): string {
@@ -69,7 +70,7 @@ export function AttentionDesk({ messages }: { messages: ChatMessage[] }) {
                   <span className="ml-auto rounded bg-whale/20 px-1 font-mono text-[10px] font-bold text-whale">+{m.amount}</span>
                 ) : null}
               </div>
-              <p className="mt-0.5 line-clamp-3 text-[12px] leading-snug text-fg/85">{m.text}</p>
+              <p className="mt-0.5 line-clamp-3 text-[12px] leading-snug text-fg/85">{renderMessageText(m.text)}</p>
             </div>
           ))}
         </div>
