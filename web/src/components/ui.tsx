@@ -58,7 +58,7 @@ type Size = "sm" | "md";
 const BTN_VARIANT: Record<Variant, string> = {
   primary:
     "bg-accent text-accent-ink shadow-[inset_0_1px_0_0_rgba(255,255,255,0.25)] hover:brightness-110 active:brightness-95",
-  secondary: "border border-white/10 bg-elevated/80 text-fg hover:bg-overlay active:brightness-95",
+  secondary: "border border-line bg-elevated/80 text-fg hover:bg-overlay active:brightness-95",
   ghost: "text-fg-dim hover:bg-elevated hover:text-fg active:brightness-95",
 };
 const BTN_SIZE: Record<Size, string> = {
@@ -155,7 +155,7 @@ export function SegmentedControl<T extends string>({
 }) {
   return (
     <div
-      className={`inline-flex items-center gap-0.5 rounded-md border border-white/10 bg-elevated/60 p-0.5 ${className}`}
+      className={`inline-flex items-center gap-0.5 rounded-md border border-line bg-elevated/60 p-0.5 ${className}`}
     >
       {options.map((o) => (
         <button
@@ -184,7 +184,7 @@ export function Badge({
   className?: string;
 }) {
   const C = {
-    neutral: "border-white/10 bg-elevated text-fg-dim",
+    neutral: "border-line bg-elevated text-fg-dim",
     accent: "border-accent/30 bg-accent/15 text-accent",
     pos: "border-pos/30 bg-pos/15 text-pos",
     neg: "border-neg/30 bg-neg/15 text-neg",
@@ -235,7 +235,7 @@ export function EmptyState({
 export function Input({ className = "", ...props }: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={`h-8 rounded-md border border-white/10 bg-elevated/60 px-2.5 text-sm text-fg outline-none transition placeholder:text-fg-muted focus-visible:border-accent/60 focus-visible:ring-2 focus-visible:ring-accent/30 ${className}`}
+      className={`h-8 rounded-md border border-line bg-elevated/60 px-2.5 text-sm text-fg outline-none transition placeholder:text-fg-muted focus-visible:border-accent/60 focus-visible:ring-2 focus-visible:ring-accent/30 ${className}`}
       {...props}
     />
   );

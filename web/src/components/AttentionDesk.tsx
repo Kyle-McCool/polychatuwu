@@ -56,7 +56,7 @@ export function AttentionDesk({ messages }: { messages: ChatMessage[] }) {
             <EmptyState size={64}>questions and tips from chat surface here, so you can answer before they scroll off</EmptyState>
           )}
           {attention.map(({ type, m }) => (
-            <div key={m.id} className="msg-in rounded-md border border-white/5 bg-elevated/40 px-2 py-1.5">
+            <div key={m.id} className="msg-in rounded-md border border-line bg-elevated/40 px-2 py-1.5">
               <div className="flex items-center gap-1.5">
                 {type === "tip" ? (
                   <Coins size={11} className="shrink-0 text-whale" />

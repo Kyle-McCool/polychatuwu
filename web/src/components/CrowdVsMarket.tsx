@@ -253,7 +253,7 @@ export function CrowdVsMarket({
         style={{ borderColor: `${PM_BLUE}55`, background: `linear-gradient(160deg, ${PM_BLUE}14, transparent 70%)` }}
       >
         {/* CROWD vs MARKET scoreboard — chat's running record against the market */}
-        <div className="mb-3 rounded-lg border border-white/8 bg-white/[0.04] px-3 py-2">
+        <div className="mb-3 rounded-lg border border-line bg-fg/[0.04] px-3 py-2">
           <div className="text-center font-display text-[15px] font-bold tracking-tight text-fg">
             Crowd <span className="text-fg-muted">vs</span> Market
           </div>
@@ -318,7 +318,7 @@ export function CrowdVsMarket({
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search a Polymarket bet to feature…"
                 aria-label="Search Polymarket bets"
-                className="h-8 w-full rounded-md border border-white/10 bg-elevated/60 pl-7 pr-2 text-sm text-fg outline-none transition placeholder:text-fg-muted focus-visible:border-accent/60 focus-visible:ring-2 focus-visible:ring-accent/30"
+                className="h-8 w-full rounded-md border border-line bg-elevated/60 pl-7 pr-2 text-sm text-fg outline-none transition placeholder:text-fg-muted focus-visible:border-accent/60 focus-visible:ring-2 focus-visible:ring-accent/30"
               />
             </div>
             {(searching || results.length > 0) && (
@@ -328,7 +328,7 @@ export function CrowdVsMarket({
                   <button
                     key={m.id}
                     onClick={() => pick(m)}
-                    className="flex items-center justify-between gap-2 rounded-md border border-white/5 bg-elevated/40 px-2 py-1.5 text-left outline-none transition hover:border-accent/40 hover:bg-elevated focus-visible:ring-2 focus-visible:ring-accent/50"
+                    className="flex items-center justify-between gap-2 rounded-md border border-line bg-elevated/40 px-2 py-1.5 text-left outline-none transition hover:border-accent/40 hover:bg-elevated focus-visible:ring-2 focus-visible:ring-accent/50"
                   >
                     <span className="min-w-0 flex-1 truncate text-[12px] text-fg-dim" title={m.label}>
                       {m.label}
@@ -403,12 +403,12 @@ export function CrowdVsMarket({
 
         {/* scoreboard + share */}
         {snaps.length > 0 && (
-          <div className="mt-3 border-t border-white/8 pt-2">
+          <div className="mt-3 border-t border-line pt-2">
             <div className="mb-1.5 flex items-center justify-between">
               <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">Recent calls</span>
               <button
                 onClick={share}
-                className="inline-flex items-center gap-1 rounded-md border border-white/10 px-1.5 py-0.5 font-mono text-[10px] text-fg-dim outline-none transition hover:bg-elevated hover:text-fg focus-visible:ring-2 focus-visible:ring-accent/50"
+                className="inline-flex items-center gap-1 rounded-md border border-line px-1.5 py-0.5 font-mono text-[10px] text-fg-dim outline-none transition hover:bg-elevated hover:text-fg focus-visible:ring-2 focus-visible:ring-accent/50"
               >
                 <Share2 size={11} /> share
               </button>
@@ -453,7 +453,7 @@ function Bar({ label, pct, color, pending }: { label: string; pct: number | null
           {pending || pct == null ? "·" : `${pct}% YES`}
         </span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-white/8">
+      <div className="h-2 overflow-hidden rounded-full bg-fg/8">
         <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct ?? 0}%`, background: color, opacity: pending ? 0.4 : 1 }} />
       </div>
     </div>

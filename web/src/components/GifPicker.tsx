@@ -46,7 +46,7 @@ export function GifPicker({ onGif }: { onGif?: (url: string) => void }) {
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search GIFs…"
           aria-label="Search GIFs"
-          className="h-8 w-full rounded-md border border-white/10 bg-elevated/60 pl-7 pr-2 text-sm text-fg outline-none transition placeholder:text-fg-muted focus-visible:border-accent/60 focus-visible:ring-2 focus-visible:ring-accent/30"
+          className="h-8 w-full rounded-md border border-line bg-elevated/60 pl-7 pr-2 text-sm text-fg outline-none transition placeholder:text-fg-muted focus-visible:border-accent/60 focus-visible:ring-2 focus-visible:ring-accent/30"
         />
       </div>
       <div className="grid max-h-72 grid-cols-2 gap-1.5 overflow-y-auto">
@@ -64,7 +64,7 @@ export function GifPicker({ onGif }: { onGif?: (url: string) => void }) {
             onClick={() => fire(g)}
             aria-label={`Play GIF: ${g.desc}`}
             className={`overflow-hidden rounded-md border bg-elevated/40 outline-none transition focus-visible:ring-2 focus-visible:ring-accent/50 ${
-              hit === g.id ? "scale-95 border-accent" : "border-white/8 hover:border-accent/40"
+              hit === g.id ? "scale-95 border-accent" : "border-line hover:border-accent/40"
             }`}
           >
             <img src={g.preview} alt="" loading="lazy" className="h-20 w-full object-cover" />

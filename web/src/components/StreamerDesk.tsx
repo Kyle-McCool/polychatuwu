@@ -47,7 +47,7 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
 
 function Stat({ label, value, tone = "text-fg" }: { label: string; value: string; tone?: string }) {
   return (
-    <div className="flex-1 rounded-md border border-white/5 bg-elevated/40 px-2 py-1.5">
+    <div className="flex-1 rounded-md border border-line bg-elevated/40 px-2 py-1.5">
       <div className="font-mono text-[9px] uppercase tracking-wider text-fg-muted">{label}</div>
       <div className={`font-mono text-[15px] font-bold leading-tight tabular-nums ${tone}`}>{value}</div>
     </div>
@@ -234,7 +234,7 @@ export function StreamerDesk({ messages }: { messages: ChatMessage[] }) {
           <p className="px-1 font-mono text-[11px] text-fg-muted">reading the room…</p>
         ) : (
           <>
-            <div className="flex h-2.5 overflow-hidden rounded-full bg-white/8">
+            <div className="flex h-2.5 overflow-hidden rounded-full bg-fg/8">
               {s.vibe.map((v) => (
                 <div
                   key={v.a}
@@ -268,7 +268,7 @@ export function StreamerDesk({ messages }: { messages: ChatMessage[] }) {
             {s.echo.map((e) => (
               <div
                 key={e.text}
-                className="flex items-center justify-between gap-2 rounded-md border border-white/5 bg-elevated/40 px-2.5 py-1.5"
+                className="flex items-center justify-between gap-2 rounded-md border border-line bg-elevated/40 px-2.5 py-1.5"
               >
                 <span className="min-w-0 truncate text-[13px] text-fg-dim">{renderMessageText(e.text)}</span>
                 <span className="shrink-0 font-mono text-[11px] font-bold tabular-nums text-accent">×{e.n}</span>
@@ -289,7 +289,7 @@ export function StreamerDesk({ messages }: { messages: ChatMessage[] }) {
           </h3>
           <button
             onClick={copyClips}
-            className="inline-flex items-center gap-1 rounded-md border border-white/10 px-1.5 py-0.5 font-mono text-[10px] text-fg-dim transition hover:bg-elevated hover:text-fg"
+            className="inline-flex items-center gap-1 rounded-md border border-line px-1.5 py-0.5 font-mono text-[10px] text-fg-dim transition hover:bg-elevated hover:text-fg"
           >
             {copied ? <Check size={11} /> : <Copy size={11} />} {copied ? "copied" : "copy"}
           </button>

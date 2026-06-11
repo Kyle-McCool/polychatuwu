@@ -109,7 +109,7 @@ export function ModDesk({ messages }: { messages: ChatMessage[] }) {
           </h3>
           <div className="flex flex-col gap-1">
             {offenders.map(([user, c]) => (
-              <div key={user} className="flex items-center justify-between rounded-md border border-white/5 bg-elevated/40 px-2 py-1.5">
+              <div key={user} className="flex items-center justify-between rounded-md border border-line bg-elevated/40 px-2 py-1.5">
                 <span className="truncate font-mono text-[12px] font-semibold" style={{ color: userColor(user) }}>
                   {user}
                 </span>

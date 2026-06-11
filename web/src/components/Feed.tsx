@@ -132,7 +132,7 @@ export function Feed({
   return (
     <div className="relative flex h-full min-h-0 min-w-0 flex-col">
       {filterActive && (
-        <div className="flex shrink-0 items-center justify-between border-b border-white/8 bg-accent/10 px-3 py-1 font-mono text-[11px] text-accent">
+        <div className="flex shrink-0 items-center justify-between border-b border-line bg-accent/10 px-3 py-1 font-mono text-[11px] text-accent">
           <span className="truncate">
             filter: {fmode !== "all" ? FILTER_LABEL[fmode] : ""}
             {fmode !== "all" && fq ? " · " : ""}
@@ -171,7 +171,7 @@ export function Feed({
             e.preventDefault();
             send();
           }}
-          className={`flex shrink-0 items-center gap-1.5 border-t border-white/8 px-2 py-1.5 backdrop-blur ${
+          className={`flex shrink-0 items-center gap-1.5 border-t border-line px-2 py-1.5 backdrop-blur ${
             allowHost && asHost ? "bg-accent/[0.06]" : "bg-surface/50"
           }`}
         >
@@ -181,7 +181,7 @@ export function Feed({
               onClick={() => setAsHost((v) => !v)}
               title="Post as HOST. Your reply pops on the stream overlay for every viewer, on any platform."
               className={`shrink-0 rounded-md px-2 py-1 font-mono text-[11px] font-bold uppercase tracking-wider transition ${
-                asHost ? "bg-accent text-accent-ink" : "border border-white/15 text-fg-muted hover:text-fg"
+                asHost ? "bg-accent text-accent-ink" : "border border-line-strong text-fg-muted hover:text-fg"
               }`}
             >
               Host
@@ -193,7 +193,7 @@ export function Feed({
             placeholder="name"
             maxLength={24}
             aria-label="Your display name"
-            className="w-20 shrink-0 rounded-md border border-white/10 bg-elevated/60 px-2 py-1 font-mono text-[11px] text-fg outline-none placeholder:text-fg-muted focus:border-accent/50"
+            className="w-20 shrink-0 rounded-md border border-line bg-elevated/60 px-2 py-1 font-mono text-[11px] text-fg outline-none placeholder:text-fg-muted focus:border-accent/50"
           />
           <input
             value={draft}
@@ -201,7 +201,7 @@ export function Feed({
             placeholder={allowHost && asHost ? "reply to all viewers, shows on stream…" : "message the shared chat…"}
             maxLength={280}
             aria-label="Message the shared chat"
-            className="min-w-0 flex-1 rounded-md border border-white/10 bg-elevated/60 px-2.5 py-1 text-[13px] text-fg outline-none placeholder:text-fg-muted focus:border-accent/50"
+            className="min-w-0 flex-1 rounded-md border border-line bg-elevated/60 px-2.5 py-1 text-[13px] text-fg outline-none placeholder:text-fg-muted focus:border-accent/50"
           />
           <button
             type="submit"

@@ -300,14 +300,14 @@ export function RecapCard({ messages, channel, onClose }: { messages: ChatMessag
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm" onClick={onClose}>
-      <div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-surface p-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-2xl rounded-2xl border border-line bg-surface p-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="mb-3 flex items-center justify-between">
           <span className="font-mono text-xs uppercase tracking-wider text-fg-muted">Tonight's recap</span>
           <button onClick={onClose} aria-label="Close" className="rounded p-1 text-fg-muted transition hover:text-fg">
             <X size={16} />
           </button>
         </div>
-        <canvas ref={canvasRef} className="w-full rounded-lg border border-white/10" />
+        <canvas ref={canvasRef} className="w-full rounded-lg border border-line" />
         <div className="mt-3 flex gap-2">
           <button
             onClick={download}
@@ -317,7 +317,7 @@ export function RecapCard({ messages, channel, onClose }: { messages: ChatMessag
           </button>
           <button
             onClick={copy}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/15 py-2 text-sm font-semibold text-fg outline-none transition hover:bg-elevated focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-line-strong py-2 text-sm font-semibold text-fg outline-none transition hover:bg-elevated focus-visible:ring-2 focus-visible:ring-accent/50"
           >
             {copied ? <Check size={15} /> : <Copy size={15} />} {copied ? "Copied!" : "Copy image"}
           </button>

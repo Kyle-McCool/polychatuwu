@@ -61,7 +61,7 @@ export function CommandPalette({
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 pt-[12vh] backdrop-blur-sm" onClick={close}>
       <div className="w-full max-w-lg overflow-hidden rounded-xl border border-line bg-surface shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-2 border-b border-white/8 px-3 py-2.5">
+        <div className="flex items-center gap-2 border-b border-line px-3 py-2.5">
           <Search size={15} className="text-fg-muted" />
           <input
             ref={inputRef}
@@ -71,7 +71,7 @@ export function CommandPalette({
             placeholder="Search the feed or run a command…"
             className="flex-1 bg-transparent text-sm text-fg outline-none placeholder:text-fg-muted"
           />
-          <kbd className="rounded border border-white/10 px-1.5 py-0.5 font-mono text-[10px] text-fg-muted">esc</kbd>
+          <kbd className="rounded border border-line px-1.5 py-0.5 font-mono text-[10px] text-fg-muted">esc</kbd>
         </div>
         <div className="max-h-72 overflow-y-auto p-1.5">
           {q.trim() && (
@@ -89,7 +89,7 @@ export function CommandPalette({
             </button>
           ))}
         </div>
-        <div className="border-t border-white/8 px-3 py-1.5 font-mono text-[10px] text-fg-muted">
+        <div className="border-t border-line px-3 py-1.5 font-mono text-[10px] text-fg-muted">
           ⌘K toggle · enter to search · esc to close
         </div>
       </div>

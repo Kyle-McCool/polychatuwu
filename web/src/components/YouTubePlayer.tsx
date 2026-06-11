@@ -405,7 +405,7 @@ export function YouTubePlayer({
                   max={100}
                   value={muted ? 0 : vol}
                   onChange={(e) => changeVol(Number(e.target.value))}
-                  className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/15"
+                  className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-fg/15"
                   style={{ accentColor: accent }}
                   aria-label="Volume"
                 />
@@ -487,7 +487,7 @@ export function YouTubePlayer({
           </div>
 
           {/* CUSTOM URL (secondary) */}
-          <div className="mt-3 border-t border-white/8 pt-3">
+          <div className="mt-3 border-t border-line pt-3">
             <p className="mb-1.5 px-1 font-mono text-[9px] uppercase tracking-[0.12em] text-fg-muted">
               or paste any link
             </p>
@@ -543,7 +543,7 @@ function GenreSelect({
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex h-8 w-full items-center justify-between gap-2 rounded-md border border-white/10 bg-elevated/60 px-2.5 font-mono text-xs text-fg outline-none transition hover:border-accent/40 focus-visible:border-accent/60 focus-visible:ring-2 focus-visible:ring-accent/30"
+        className="flex h-8 w-full items-center justify-between gap-2 rounded-md border border-line bg-elevated/60 px-2.5 font-mono text-xs text-fg outline-none transition hover:border-accent/40 focus-visible:border-accent/60 focus-visible:ring-2 focus-visible:ring-accent/30"
       >
         <span className="flex min-w-0 items-center gap-2 truncate">
           <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: current.color }} />

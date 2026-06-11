@@ -13,9 +13,9 @@ export function PriceTicker({ prices, className = "" }: { prices: PriceItem[]; c
   const doubled = [...prices, ...prices]; // duplicated for a seamless marquee loop
 
   return (
-    <div className={`relative flex items-center overflow-hidden border-y border-white/15 bg-surface/95 ${className}`}>
+    <div className={`relative flex items-center overflow-hidden border-y border-line-strong bg-surface/95 ${className}`}>
       <span
-        className="z-10 flex shrink-0 items-center bg-white/[0.08] py-1.5 pl-3 pr-6 font-mono text-[11px] font-extrabold uppercase tracking-[0.16em] text-fg"
+        className="z-10 flex shrink-0 items-center bg-fg/[0.08] py-1.5 pl-3 pr-6 font-mono text-[11px] font-extrabold uppercase tracking-[0.16em] text-fg"
         style={{ clipPath: "polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%)" }}
       >
         Market Watch

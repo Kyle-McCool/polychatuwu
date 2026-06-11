@@ -19,7 +19,7 @@ export function ThemeToggle() {
       onClick={() => setTheme(next)}
       aria-label={`Switch to ${next} mode`}
       title={`Switch to ${next} mode`}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-white/10 bg-elevated/80 text-fg-dim outline-none transition hover:bg-overlay hover:text-fg focus-visible:ring-2 focus-visible:ring-accent/50"
+      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-line bg-elevated/80 text-fg-dim outline-none transition hover:bg-overlay hover:text-fg focus-visible:ring-2 focus-visible:ring-accent/50"
     >
       {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
     </button>

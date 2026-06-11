@@ -21,7 +21,7 @@ export function StatusBar({
 }) {
   const stableConnected = useStable(connected);
   return (
-    <header className="flex items-center gap-3 border-b border-white/10 bg-base/70 px-3 py-2 backdrop-blur-md">
+    <header className="flex items-center gap-3 border-b border-line bg-base/70 px-3 py-2 backdrop-blur-md">
       <span className="flex items-center gap-1.5 pr-1">
         <img src="/logo-icon.png" alt="" className="h-6 w-auto" />
         <span
@@ -53,7 +53,7 @@ export function StatusBar({
           {statuses.map((s) => (
             <span
               key={s.platform + s.channel}
-              className="flex items-center gap-1.5 rounded-md border border-white/10 bg-elevated/50 px-2 py-1"
+              className="flex items-center gap-1.5 rounded-md border border-line bg-elevated/50 px-2 py-1"
               title={s.detail}
             >
               <span className="h-1.5 w-1.5 rounded-full" style={{ background: DOT[s.state] }} />
@@ -67,7 +67,7 @@ export function StatusBar({
           href="/overlay"
           target="_blank"
           rel="noreferrer"
-          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-white/10 bg-elevated/80 px-2.5 text-xs font-medium text-fg outline-none transition hover:bg-overlay focus-visible:ring-2 focus-visible:ring-accent/50"
+          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-line bg-elevated/80 px-2.5 text-xs font-medium text-fg outline-none transition hover:bg-overlay focus-visible:ring-2 focus-visible:ring-accent/50"
         >
           <ExternalLink size={13} /> Overlay
         </a>

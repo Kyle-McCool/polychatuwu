@@ -109,7 +109,7 @@ export function IndexBoard({ messages }: { messages: ChatMessage[] }) {
   const moodColor = m.mood > 55 ? "text-pos" : m.mood < 45 ? "text-neg" : "text-fg-dim";
 
   return (
-    <div className="flex items-center gap-5 overflow-x-auto border-b border-white/10 bg-surface/40 px-4 py-2 backdrop-blur-md">
+    <div className="flex items-center gap-5 overflow-x-auto border-b border-line bg-surface/40 px-4 py-2 backdrop-blur-md">
       <Index label="CHAT HYPE">
         <Flap value={m.hype} width={3} className="text-base font-bold text-accent" />
         {m.affect !== "neutral" && (

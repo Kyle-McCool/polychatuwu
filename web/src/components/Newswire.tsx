@@ -48,7 +48,7 @@ export function Newswire({ news }: { news: NewsItem[] }) {
             href={n.url || undefined}
             target="_blank"
             rel="noreferrer"
-            className="group block rounded-lg border border-white/5 bg-elevated/40 px-2.5 py-2 transition hover:border-accent/40 hover:bg-elevated/70"
+            className="group block rounded-lg border border-line bg-elevated/40 px-2.5 py-2 transition hover:border-accent/40 hover:bg-elevated/70"
           >
             <div className="mb-1 flex items-center gap-1.5">
               {n.kind === "tweet" ? (

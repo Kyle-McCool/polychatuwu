@@ -96,7 +96,7 @@ export function Soundboard({ onPlay }: { onPlay?: (s: SoundName) => void }) {
             className={`flex flex-col items-center justify-center gap-1 rounded-lg border py-2.5 outline-none transition focus-visible:ring-2 focus-visible:ring-accent/50 ${
               hit === p.name
                 ? "scale-95 border-accent bg-accent/20 text-accent"
-                : "border-white/8 bg-elevated/50 text-fg-dim hover:border-accent/40 hover:bg-elevated hover:text-fg"
+                : "border-line bg-elevated/50 text-fg-dim hover:border-accent/40 hover:bg-elevated hover:text-fg"
             } ${muted ? "opacity-50" : ""}`}
           >
             <p.Icon size={18} strokeWidth={1.75} />

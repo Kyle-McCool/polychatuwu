@@ -140,8 +140,8 @@ export function Terminal() {
           onScore={sock.sendCrowdScore}
           />
         </div>
-        <main className="grid min-h-0 min-w-0 grid-cols-1 overflow-hidden grid-rows-[320px_1fr] border-x border-white/5">
-          <div className="relative min-h-0 overflow-hidden border-b border-white/10">
+        <main className="grid min-h-0 min-w-0 grid-cols-1 overflow-hidden grid-rows-[320px_1fr] border-x border-line">
+          <div className="relative min-h-0 overflow-hidden border-b border-line">
             <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-3 py-2">
               <SegmentedControl
                 value={centerView}
@@ -180,7 +180,7 @@ export function Terminal() {
                           className={`flex items-center gap-1.5 rounded-md border px-2 py-1 font-mono text-[11px] outline-none transition focus-visible:ring-2 focus-visible:ring-accent/50 ${
                             on
                               ? "border-accent/60 bg-accent text-accent-ink"
-                              : "border-white/10 bg-elevated/70 text-fg-dim backdrop-blur hover:text-fg"
+                              : "border-line bg-elevated/70 text-fg-dim backdrop-blur hover:text-fg"
                           }`}
                         >
                           <PlatformIcon platform={c.platform} size={12} /> {label}

@@ -99,7 +99,7 @@ export function RightRail({
 
   return (
     <aside className="flex h-full min-h-0 min-w-0 flex-col bg-transparent">
-      <div role="tablist" aria-label="Right panel" className="mx-3 mb-3 mt-3 flex shrink-0 items-center justify-between gap-1 rounded-lg border border-white/8 bg-elevated/40 p-1">
+      <div role="tablist" aria-label="Right panel" className="mx-3 mb-3 mt-3 flex shrink-0 items-center justify-between gap-1 rounded-lg border border-line bg-elevated/40 p-1">
         {tabBtn("ask", "Ask", HelpCircle)}
         {tabBtn("market", "Chatters", Users)}
         {tabBtn("desk", "Desk", SlidersHorizontal)}
@@ -122,7 +122,7 @@ export function RightRail({
 
       {/* DESK — broadcast tools, sub-tabbed: FX (soundboard + GIFs) | Pulse (monitor) | Mod (queue) */}
       <div className={tab === "desk" ? "flex flex-col gap-3" : "hidden"}>
-        <div role="tablist" aria-label="Desk section" className="flex shrink-0 gap-1 rounded-md border border-white/8 bg-elevated/40 p-0.5">
+        <div role="tablist" aria-label="Desk section" className="flex shrink-0 gap-1 rounded-md border border-line bg-elevated/40 p-0.5">
           {([
             ["fx", "FX"],
             ["pulse", "Pulse"],
@@ -161,7 +161,7 @@ export function RightRail({
       {/* WIRE — crypto intel, split into sub-tabs so each feed gets its own page
           (no scrolling past a long newswire to reach the Polymarket wire). */}
       <div className={tab === "wire" ? "flex flex-col gap-3" : "hidden"}>
-        <div role="tablist" aria-label="Wire section" className="flex shrink-0 gap-1 rounded-md border border-white/8 bg-elevated/40 p-0.5">
+        <div role="tablist" aria-label="Wire section" className="flex shrink-0 gap-1 rounded-md border border-line bg-elevated/40 p-0.5">
           {([
             ["news", "Newswire"],
             ["poly", "Polymarket"],
@@ -227,7 +227,7 @@ function CoinSentiment({
           const bullPct = total >= MIN_SENTIMENT_SAMPLE ? Math.round((s!.bull / total) * 100) : null;
           const up = p.change >= 0;
           return (
-            <div key={p.symbol} className="flex items-center justify-between rounded-md border border-white/5 bg-elevated/40 px-2.5 py-1.5">
+            <div key={p.symbol} className="flex items-center justify-between rounded-md border border-line bg-elevated/40 px-2.5 py-1.5">
               <span className="flex min-w-0 items-center gap-2">
                 <span className="font-mono text-sm font-semibold text-fg">{p.symbol}</span>
                 <span className="font-mono text-[11px] tabular-nums text-fg-muted">${fmtCoin(p.price)}</span>
@@ -300,7 +300,7 @@ function FirstTimeChatters({ messages }: { messages: ChatMessage[] }) {
           <span
             key={c.user + c.ts}
             title={c.returning ? "returning regular" : "first time you've seen them"}
-            className="rounded-full border border-white/10 bg-elevated/50 px-2 py-0.5 font-mono text-[11px]"
+            className="rounded-full border border-line bg-elevated/50 px-2 py-0.5 font-mono text-[11px]"
             style={{ color: userColor(c.user) }}
           >
             {c.returning && <span className="mr-0.5 text-accent">★</span>}
@@ -323,7 +323,7 @@ function ChatterBoard({ traders }: { traders: [string, number][] }) {
         {traders.map(([user, score], i) => (
           <div
             key={user}
-            className="flex items-center justify-between rounded-md border border-white/5 bg-elevated/40 px-2 py-1.5"
+            className="flex items-center justify-between rounded-md border border-line bg-elevated/40 px-2 py-1.5"
           >
             <span className="flex min-w-0 items-center gap-2">
               <span className="w-4 text-center font-mono text-[10px] font-bold text-fg-muted">{i + 1}</span>

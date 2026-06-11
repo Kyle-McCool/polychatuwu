@@ -61,7 +61,7 @@ export function OverlayControls({ config, onChange }: { config: OverlayConfig; o
       </div>
 
       {/* LOWER THIRD — the broadcast "NOW DISCUSSING" banner + guest name plates */}
-      <div className="mt-4 border-t border-white/8 pt-3">
+      <div className="mt-4 border-t border-line pt-3">
         <Title>
           <span className="flex items-center gap-1.5">
             <Captions size={11} /> Lower third

@@ -16,7 +16,7 @@ export function Viewer() {
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-base text-fg">
-      <header className="flex shrink-0 items-center justify-between border-b border-white/10 bg-surface/40 px-4 py-2 backdrop-blur-md">
+      <header className="flex shrink-0 items-center justify-between border-b border-line bg-surface/40 px-4 py-2 backdrop-blur-md">
         <span className="flex items-center gap-2.5">
           <img src="/logo-icon.png" alt="" className="h-6 w-auto" />
           <span className="text-[15px] font-bold tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
@@ -36,8 +36,8 @@ export function Viewer() {
           <WatchPlayer channels={sock.channels} active={sock.watch} />
         </div>
         {/* shared chat */}
-        <div className="flex min-h-0 flex-1 flex-col border-t border-white/10 lg:max-w-[400px] lg:border-l lg:border-t-0">
-          <div className="shrink-0 border-b border-white/8 px-3 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-fg-muted">
+        <div className="flex min-h-0 flex-1 flex-col border-t border-line lg:max-w-[400px] lg:border-l lg:border-t-0">
+          <div className="shrink-0 border-b border-line px-3 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-fg-muted">
             Shared chat
           </div>
           <div className="min-h-0 flex-1">

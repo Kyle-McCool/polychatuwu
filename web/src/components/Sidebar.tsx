@@ -165,7 +165,7 @@ export function Sidebar({
         <div
           role="tablist"
           aria-label="Stream controls"
-          className="flex items-center justify-between gap-1 rounded-lg border border-white/8 bg-elevated/40 p-1"
+          className="flex items-center justify-between gap-1 rounded-lg border border-line bg-elevated/40 p-1"
         >
           {tabBtn("channels", "Channels")}
           {tabBtn("overlay", "Overlay")}
@@ -250,7 +250,7 @@ export function Sidebar({
                               if (parsed) onAdd(parsed);
                             }}
                             title={`Add ${sug.label}`}
-                            className="flex items-center gap-1.5 rounded-full border border-white/10 bg-elevated/60 px-2.5 py-1 text-[12px] text-fg-dim outline-none transition hover:border-accent/50 hover:text-fg focus-visible:ring-2 focus-visible:ring-accent/50"
+                            className="flex items-center gap-1.5 rounded-full border border-line bg-elevated/60 px-2.5 py-1 text-[12px] text-fg-dim outline-none transition hover:border-accent/50 hover:text-fg focus-visible:ring-2 focus-visible:ring-accent/50"
                           >
                             <PlatformIcon platform={platform} size={11} /> {sug.label}
                           </button>
@@ -269,7 +269,7 @@ export function Sidebar({
                       (s.channel === c.channel || c.channel.toLowerCase().includes(s.channel.toLowerCase())),
                   );
                   return (
-                    <div key={c.platform + c.channel} className="group rounded-md border border-white/5 bg-elevated/40 px-2 py-1.5">
+                    <div key={c.platform + c.channel} className="group rounded-md border border-line bg-elevated/40 px-2 py-1.5">
                       <div className="flex items-center justify-between">
                         <span className="flex min-w-0 items-center gap-2">
                           <span
@@ -300,7 +300,7 @@ export function Sidebar({
               </div>
             </section>
 
-            <section className="border-t border-white/5 pt-4">
+            <section className="border-t border-line pt-4">
               <div className="flex items-center justify-between px-1 py-0.5">
                 <span className="flex items-center gap-1.5 text-sm text-fg-dim" title="Hide slurs and spam-bot messages from the feed">
                   <ShieldCheck size={14} className="text-pos" /> Clean chat
@@ -316,7 +316,7 @@ export function Sidebar({
                     placeholder="your own banned words, comma-separated…"
                     rows={2}
                     spellCheck={false}
-                    className="mt-2 w-full resize-y rounded-md border border-white/10 bg-elevated/40 px-2 py-1.5 font-mono text-[11px] text-fg outline-none transition placeholder:text-fg-muted focus:border-accent/50"
+                    className="mt-2 w-full resize-y rounded-md border border-line bg-elevated/40 px-2 py-1.5 font-mono text-[11px] text-fg outline-none transition placeholder:text-fg-muted focus:border-accent/50"
                   />
                   <p className="mt-1 font-mono text-[10px] leading-relaxed text-fg-muted">
                     hiding <span className="text-fg-dim">{BUILTIN_SLUR_COUNT}</span> built-in slurs +{" "}
@@ -349,7 +349,7 @@ export function Sidebar({
             config={overlayConfig}
             onConfig={onOverlayConfig}
           />
-          <section className="border-t border-white/8 pt-4">
+          <section className="border-t border-line pt-4">
             <Button variant="secondary" size="sm" onClick={onRecap} icon={<Clapperboard size={14} />} className="w-full justify-center">
               Generate stream recap
             </Button>

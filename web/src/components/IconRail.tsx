@@ -42,7 +42,7 @@ export function IconRail({
   onToggleRight: () => void;
 }) {
   return (
-    <nav className="flex flex-col items-center gap-1 border-r border-white/5 bg-base/30 px-1.5 py-3">
+    <nav className="flex flex-col items-center gap-1 border-r border-line bg-base/30 px-1.5 py-3">
       <div className="mb-2 flex h-8 w-8 items-center justify-center" title="Market Bubble">
         <img src="/logo-icon.png" alt="Market Bubble" className="h-7 w-7 object-contain" />
       </div>

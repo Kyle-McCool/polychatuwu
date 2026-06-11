@@ -32,7 +32,7 @@ export function ChatMix({ messages }: { messages: ChatMessage[] }) {
         <p className="px-1 font-mono text-[11px] text-fg-muted">no messages yet</p>
       ) : (
         <>
-          <div className="flex h-2.5 overflow-hidden rounded-full bg-white/8">
+          <div className="flex h-2.5 overflow-hidden rounded-full bg-fg/8">
             {ORDER.map((p) =>
               mix[p] > 0 ? (
                 <div
