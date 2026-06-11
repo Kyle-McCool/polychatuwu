@@ -370,7 +370,7 @@ export function CrowdVsMarket({
 
         {/* SETTLED vs the market — the rigorous record: chat's Brier vs the market's Brier on
             calls whose Polymarket markets have actually resolved. Builds over time as markets settle. */}
-        {(settledN > 0 || pendingN > 0) && (
+        {(resolved > 0 || preds.length > 0) && (
           <div className="mb-3 rounded-lg border border-line bg-fg/[0.03] px-3 py-2">
             <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.12em] text-fg-muted">
               <span>Settled vs the market</span>
@@ -392,10 +392,45 @@ export function CrowdVsMarket({
                     : "scored on actual Polymarket outcomes · lower Brier is better"}
                 </p>
               </>
+            ) : pendingN > 0 ? (
+              <p className="mt-1 text-center font-mono text-[9px] leading-relaxed text-fg-muted">
+                {pendingN} call{pendingN === 1 ? "" : "s"} waiting on Polymarket to resolve. chat's Brier vs the market's settles here.
+              </p>
             ) : (
               <p className="mt-1 text-center font-mono text-[9px] leading-relaxed text-fg-muted">
-                {pendingN} call{pendingN === 1 ? "" : "s"} waiting on Polymarket to resolve. real outcomes settle here.
+                no settled calls yet. run a round on a binary market, and once Polymarket resolves it, chat's forecast is scored against the market's on the real outcome.
               </p>
+            )}
+          </div>
+        )}
+
+        {/* THE MARKET — search to pick one (locked during a live round), then the current bet */}
+        {!round && (
+          <div className="mb-2">
+            <SearchInput
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search Polymarket bets…"
+              aria-label="Search Polymarket bets"
+            />
+            {(searching || results.length > 0) && (
+              <div className="mt-1.5 flex max-h-44 flex-col gap-1 overflow-y-auto">
+                {searching && results.length === 0 && <p className="px-1 py-1 font-mono text-[10px] text-fg-muted">searching…</p>}
+                {results.map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => pick(m)}
+                    className="flex items-center justify-between gap-2 rounded-md border border-line bg-elevated/40 px-2 py-1.5 text-left outline-none transition hover:border-accent/40 hover:bg-elevated focus-visible:ring-2 focus-visible:ring-accent/50"
+                  >
+                    <span className="min-w-0 flex-1 truncate text-[12px] text-fg-dim" title={m.label}>
+                      {m.label}
+                    </span>
+                    <span className="shrink-0 font-mono text-[11px] tabular-nums" style={{ color: PM_BLUE }}>
+                      {m.yesPct}%
+                    </span>
+                  </button>
+                ))}
+              </div>
             )}
           </div>
         )}
@@ -423,38 +458,6 @@ export function CrowdVsMarket({
             </button>
           )}
         </div>
-
-        {/* search to feature a specific bet (locked during a live round) */}
-        {!round && (
-          <>
-            <SearchInput
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search Polymarket bets…"
-              aria-label="Search Polymarket bets"
-              className="mt-2"
-            />
-            {(searching || results.length > 0) && (
-              <div className="mt-1.5 flex max-h-44 flex-col gap-1 overflow-y-auto">
-                {searching && results.length === 0 && <p className="px-1 py-1 font-mono text-[10px] text-fg-muted">searching…</p>}
-                {results.map((m) => (
-                  <button
-                    key={m.id}
-                    onClick={() => pick(m)}
-                    className="flex items-center justify-between gap-2 rounded-md border border-line bg-elevated/40 px-2 py-1.5 text-left outline-none transition hover:border-accent/40 hover:bg-elevated focus-visible:ring-2 focus-visible:ring-accent/50"
-                  >
-                    <span className="min-w-0 flex-1 truncate text-[12px] text-fg-dim" title={m.label}>
-                      {m.label}
-                    </span>
-                    <span className="shrink-0 font-mono text-[11px] tabular-nums" style={{ color: PM_BLUE }}>
-                      {m.yesPct}%
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </>
-        )}
 
         {/* the two readings */}
         <div className="mt-3 space-y-2">
