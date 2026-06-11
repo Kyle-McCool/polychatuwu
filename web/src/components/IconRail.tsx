@@ -60,8 +60,8 @@ export function IconRail({
         <img src="/logo-icon.png" alt="Market Bubble" className="h-7 w-7 object-contain" />
       </div>
       <RailButton icon={MessageSquare} label="Feed" active />
-      <RailButton icon={PanelLeft} label="Studio" active={leftOpen} onClick={onToggleLeft} />
-      <RailButton icon={PanelRight} label="Markets" active={rightOpen} onClick={onToggleRight} />
+      <RailButton icon={PanelLeft} label="Controls" active={leftOpen} onClick={onToggleLeft} />
+      <RailButton icon={PanelRight} label="Panels" active={rightOpen} onClick={onToggleRight} />
     </nav>
   );
 }

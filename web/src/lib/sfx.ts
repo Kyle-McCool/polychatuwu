@@ -105,6 +105,34 @@ function warmAll() {
   Object.values(SAMPLE_URLS).forEach((u) => getBuffer(u));
 }
 
+/**
+ * A short, subtle synthesized two-tone cue (no sample needed) for the CLIP IT moment, so
+ * the streamer hears chat popping off even while staring at gameplay. Routes through the
+ * soundboard master gain (so it respects volume / mute), keyless, gesture-unlocked.
+ */
+export function playCue() {
+  try {
+    const a = ac();
+    if (!master || a.state !== "running") return; // audio not unlocked yet — stay silent
+    const g = a.createGain();
+    g.connect(master);
+    const t = a.currentTime;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.3, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+    [880, 1320].forEach((f, i) => {
+      const o = a.createOscillator();
+      o.type = "sine";
+      o.frequency.setValueAtTime(f, t + i * 0.085);
+      o.connect(g);
+      o.start(t + i * 0.085);
+      o.stop(t + i * 0.085 + 0.22);
+    });
+  } catch {
+    /* audio unsupported — fail silent */
+  }
+}
+
 export function playSound(name: SoundName) {
   try {
     warmAll();

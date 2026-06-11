@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { ChatMessage } from "../lib/types";
 import { sentimentOf, MIN_SENTIMENT_SAMPLE } from "../lib/sentiment";
 import { hypeNow, AFFECT_META, type Affect } from "../lib/hype";
+import { playCue } from "../lib/sfx";
 
 const FLAP_CHARS = " 0123456789.$%+-▲▼ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -65,6 +66,7 @@ export function IndexBoard({ messages }: { messages: ChatMessage[] }) {
   const msgsRef = useRef(messages);
   msgsRef.current = messages;
   const prev = useRef({ hype: 0, mood: 50 });
+  const clipFired = useRef(false);
   const [m, setM] = useState({
     hype: "0",
     hypeDir: 0,
@@ -92,6 +94,8 @@ export function IndexBoard({ messages }: { messages: ChatMessage[] }) {
         }
       }
       const hy = hypeNow(msgs, now);
+      if (hy.clip && !clipFired.current) playCue(); // audio cue on the rising edge of a clip moment
+      clipFired.current = hy.clip;
       const hype = hy.score;
       const total = bull + bear;
       const mood = total >= MIN_SENTIMENT_SAMPLE ? Math.round((bull / total) * 100) : 50;
