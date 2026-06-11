@@ -211,14 +211,20 @@ export function Sidebar({
                   ]}
                 />
                 <div className="flex gap-1.5">
-                  <Input
-                    value={val}
-                    onChange={(e) => setVal(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && add()}
-                    placeholder={platform === "x" ? "paste X post / broadcast URL" : "channel or paste URL"}
-                    className="min-w-0 flex-1"
-                  />
-                  <Button variant="primary" onClick={add} aria-label="Add channel" icon={<Plus size={16} strokeWidth={2.5} />} />
+                  <div className="relative min-w-0 flex-1">
+                    <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2">
+                      <PlatformIcon platform={platform} size={14} />
+                    </span>
+                    <Input
+                      value={val}
+                      onChange={(e) => setVal(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && add()}
+                      placeholder={platform === "x" ? "paste X post / broadcast URL" : "channel or paste URL"}
+                      aria-label="Channel name or URL"
+                      className="w-full pl-8"
+                    />
+                  </div>
+                  <Button variant="primary" onClick={add} aria-label="Add channel" icon={<Plus size={16} strokeWidth={2.5} />} className="h-9 w-9 shrink-0 px-0" />
                 </div>
                 {platform === "x" && (
                   <p className="px-1 font-mono text-[10px] leading-relaxed text-fg-muted">

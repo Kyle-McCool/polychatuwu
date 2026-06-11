@@ -236,7 +236,7 @@ export function EmptyState({
 export function Input({ className = "", ...props }: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={`h-8 rounded-md border border-line bg-elevated/60 px-2.5 text-sm text-fg outline-none transition placeholder:text-fg-muted focus-visible:border-accent/60 focus-visible:ring-2 focus-visible:ring-accent/30 ${className}`}
+      className={`h-9 rounded-lg border border-line-strong bg-elevated px-3 text-sm text-fg shadow-sm outline-none transition placeholder:text-fg-muted hover:border-fg-muted/50 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/35 ${className}`}
       {...props}
     />
   );
