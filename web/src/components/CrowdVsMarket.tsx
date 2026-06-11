@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Megaphone, Share2, Flame, Zap, Search, X, Brain } from "lucide-react";
-import type { ChatMessage, OverlayConfig } from "../lib/types";
+import type { ChatMessage, CrowdScore, OverlayConfig } from "../lib/types";
 import { usePersisted } from "../hooks/usePersisted";
 import {
   fetchCryptoMarkets,
@@ -56,12 +56,14 @@ export function CrowdVsMarket({
   messages,
   channel,
   onShare,
+  onScore,
   config,
   onConfig,
 }: {
   messages: ChatMessage[];
   channel: string;
   onShare: (m: ShareMoment) => void;
+  onScore: (s: CrowdScore) => void;
   config: OverlayConfig;
   onConfig: (c: OverlayConfig) => void;
 }) {
@@ -225,6 +227,12 @@ export function CrowdVsMarket({
     if (r.led) streak += 1;
     else break;
   }
+
+  // relay the track-record summary so the overlay scoreboard (a separate browser that
+  // can't read this dashboard's localStorage) can show the on-air record
+  useEffect(() => {
+    onScore({ chatWins, marketWins, resolved, winRate, streak });
+  }, [chatWins, marketWins, resolved, winRate, streak, onScore]);
 
   function share() {
     const m = last;

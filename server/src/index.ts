@@ -9,7 +9,7 @@ import { handleHls } from "./hlsProxy";
 import { Newswire } from "./sources/newswire";
 import { Prices } from "./sources/prices";
 import { deDash } from "./text";
-import type { ChannelConfig, ChatMessage, NewsItem, NowPlaying, OverlayConfig, PriceItem, ServerEvent, SourceStatus } from "./types";
+import type { ChannelConfig, ChatMessage, CrowdScore, NewsItem, NowPlaying, OverlayConfig, PriceItem, ServerEvent, SourceStatus } from "./types";
 import { DEFAULT_OVERLAY_CONFIG } from "./types";
 
 const PORT = Number(process.env.PORT) || 8787;
@@ -50,6 +50,7 @@ let chatSeq = 0;
 let overlayConfig: OverlayConfig = DEFAULT_OVERLAY_CONFIG;
 let nowPlaying: NowPlaying | null = null;
 let watch: ChannelConfig | null = null; // which stream is shown on the overlay (host-selected, shared)
+let crowdScore: CrowdScore | null = null; // Crowd-vs-Market record summary, relayed to the overlay scoreboard
 
 // ── auto crypto newswire (curated X accounts + news RSS) ───────────────────────
 const news: NewsItem[] = []; // newest-first, for the streamer side panel (replayed in hello)
@@ -206,7 +207,7 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocketServer({ server });
 wss.on("connection", (ws) => {
   clients.add(ws);
-  ws.send(JSON.stringify({ type: "hello", data: { channels, overlayConfig, nowPlaying, news, prices, watch } } satisfies ServerEvent));
+  ws.send(JSON.stringify({ type: "hello", data: { channels, overlayConfig, nowPlaying, news, prices, watch, crowdScore } } satisfies ServerEvent));
   ws.send(JSON.stringify({ type: "status", data: [...statuses.values()] } satisfies ServerEvent));
   if (history.length) ws.send(JSON.stringify({ type: "history", data: history } satisfies ServerEvent));
 
@@ -216,7 +217,7 @@ wss.on("connection", (ws) => {
 
     // Control + reaction messages are host-only and rate-limited per connection;
     // chat (below) stays open so any viewer can post with no login.
-    if (msg?.type === "setChannels" || msg?.type === "overlayConfig" || msg?.type === "nowPlaying" || msg?.type === "reaction" || msg?.type === "setWatch") {
+    if (msg?.type === "setChannels" || msg?.type === "overlayConfig" || msg?.type === "nowPlaying" || msg?.type === "reaction" || msg?.type === "setWatch" || msg?.type === "crowdScore") {
       if (!authed(msg)) return;
       const now = Date.now();
       if (now - ((ws as any)._lastCtl || 0) < 150) return;
@@ -235,7 +236,7 @@ wss.on("connection", (ws) => {
         .map((c: any) => ({ platform: c.platform, channel: c.channel.trim().slice(0, 300) }));
       rebuildSources();
       ensureWatch();
-      broadcast({ type: "hello", data: { channels, overlayConfig, nowPlaying, news, prices, watch } });
+      broadcast({ type: "hello", data: { channels, overlayConfig, nowPlaying, news, prices, watch, crowdScore } });
       broadcast({ type: "watch", data: watch });
     } else if (msg?.type === "overlayConfig" && msg.data && typeof msg.data === "object") {
       // streamer changed overlay settings → sanitize, store, fan out to the overlay
@@ -259,6 +260,21 @@ wss.on("connection", (ws) => {
         chyron,
       };
       broadcast({ type: "overlayConfig", data: overlayConfig });
+    } else if (msg?.type === "crowdScore") {
+      // dashboard relayed its Crowd-vs-Market record summary → sanitize + fan out to the overlay
+      const d = msg.data;
+      const int = (x: unknown) => (typeof x === "number" && Number.isFinite(x) ? Math.max(0, Math.round(x)) : 0);
+      crowdScore =
+        d && typeof d === "object"
+          ? {
+              chatWins: int(d.chatWins),
+              marketWins: int(d.marketWins),
+              resolved: int(d.resolved),
+              winRate: Math.min(100, int(d.winRate)),
+              streak: int(d.streak),
+            }
+          : null;
+      broadcast({ type: "crowdScore", data: crowdScore });
     } else if (msg?.type === "reaction" && (typeof msg.data?.sound === "string" || typeof msg.data?.gif === "string")) {
       // streamer fired a soundboard pad or a GIF → fan out a visual reaction to
       // every connected client (overlay + cockpit) so the broadcast shows it live

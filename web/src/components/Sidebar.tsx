@@ -8,6 +8,7 @@ import { YouTubePlayer } from "./YouTubePlayer";
 import { OverlayControls } from "./OverlayControls";
 import { CrowdVsMarket } from "./CrowdVsMarket";
 import type { ShareMoment } from "./ShareCard";
+import type { CrowdScore } from "../lib/types";
 import { usePersisted } from "../hooks/usePersisted";
 
 const SOURCES: { id: Platform; label: string }[] = [
@@ -100,6 +101,7 @@ export function Sidebar({
   channel,
   onShare,
   onRecap,
+  onScore,
 }: {
   channels: ChannelConfig[];
   statuses: SourceStatus[];
@@ -121,6 +123,7 @@ export function Sidebar({
   channel: string;
   onShare: (m: ShareMoment) => void;
   onRecap: () => void;
+  onScore: (s: CrowdScore) => void;
 }) {
   const [platform, setPlatform] = useState<Platform>("twitch");
   const [val, setVal] = useState("");
@@ -342,6 +345,7 @@ export function Sidebar({
             messages={messages}
             channel={channel}
             onShare={onShare}
+            onScore={onScore}
             config={overlayConfig}
             onConfig={onOverlayConfig}
           />

@@ -137,6 +137,7 @@ export function Terminal() {
           channel={channel}
           onShare={setShare}
           onRecap={() => setRecapOpen(true)}
+          onScore={sock.sendCrowdScore}
           />
         </div>
         <main className="grid min-h-0 min-w-0 grid-cols-1 overflow-hidden grid-rows-[320px_1fr] border-x border-white/5">

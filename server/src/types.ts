@@ -52,7 +52,16 @@ export interface PriceItem {
   kind: "crypto" | "meme" | "stock";
 }
 
-export type OverlayFeature = "index" | "candle" | "market" | "chat" | "chatters" | "wire" | "ticker" | "reactions" | "audio" | "news" | "lowerThird";
+export type OverlayFeature = "index" | "candle" | "market" | "chat" | "chatters" | "wire" | "ticker" | "reactions" | "audio" | "news" | "lowerThird" | "scoreboard";
+
+// Persisted Crowd-vs-Market track record, summarized + relayed to the overlay.
+export interface CrowdScore {
+  chatWins: number;
+  marketWins: number;
+  resolved: number;
+  winRate: number;
+  streak: number;
+}
 
 export interface PinnedMarket {
   slug: string;
@@ -71,7 +80,7 @@ export interface OverlayConfig {
 }
 
 export const DEFAULT_OVERLAY_CONFIG: OverlayConfig = {
-  features: { index: true, candle: true, market: true, chat: true, chatters: true, wire: true, ticker: true, reactions: true, audio: true, news: true, lowerThird: false },
+  features: { index: true, candle: true, market: true, chat: true, chatters: true, wire: true, ticker: true, reactions: true, audio: true, news: true, lowerThird: false, scoreboard: true },
   market: null,
   chyron: { topic: "", guests: [] },
 };
@@ -86,11 +95,12 @@ export type ServerEvent =
   | { type: "message"; data: ChatMessage }
   | { type: "history"; data: ChatMessage[] }
   | { type: "status"; data: SourceStatus[] }
-  | { type: "hello"; data: { channels: ChannelConfig[]; overlayConfig: OverlayConfig; nowPlaying: NowPlaying | null; news: NewsItem[]; prices: PriceItem[]; watch: ChannelConfig | null } }
+  | { type: "hello"; data: { channels: ChannelConfig[]; overlayConfig: OverlayConfig; nowPlaying: NowPlaying | null; news: NewsItem[]; prices: PriceItem[]; watch: ChannelConfig | null; crowdScore: CrowdScore | null } }
   | { type: "reaction"; data: Reaction }
   | { type: "overlayConfig"; data: OverlayConfig }
   | { type: "nowPlaying"; data: NowPlaying | null }
   | { type: "watch"; data: ChannelConfig | null }
+  | { type: "crowdScore"; data: CrowdScore | null }
   | { type: "newsItem"; data: NewsItem }
   | { type: "newsToast"; data: NewsItem }
   | { type: "prices"; data: PriceItem[] };

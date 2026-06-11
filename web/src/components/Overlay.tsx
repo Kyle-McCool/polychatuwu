@@ -3,7 +3,7 @@ import { useChatSocket } from "../hooks/useChatSocket";
 import { Reactions } from "./Reactions";
 import { renderMessageText } from "../lib/renderMessage";
 import { Newspaper, BadgeCheck } from "lucide-react";
-import { SRC_META, type ChatMessage, type Platform, type PinnedMarket, type NowPlaying, type NewsItem } from "../lib/types";
+import { SRC_META, type ChatMessage, type Platform, type PinnedMarket, type NowPlaying, type NewsItem, type CrowdScore } from "../lib/types";
 import { PlatformIcon } from "./ui";
 import { CandleChart } from "./CandleChart";
 import { PolymarketTicker } from "./PolymarketTicker";
@@ -48,6 +48,8 @@ export function Overlay() {
   const novideo = p.has("novideo"); // ?novideo forces a transparent center to composite the real video in OBS
   const cfg = sock.overlayConfig;
   const np = sock.nowPlaying;
+  const score = sock.crowdScore;
+  const showScore = cfg.features.scoreboard && !!score && score.resolved > 0;
   // The overlay shows the live stream configured in the app (same channels as the
   // dashboard's Watch tab). ?novideo opts out so you can composite the real video in OBS.
   const hasEmbed =
@@ -208,7 +210,7 @@ export function Overlay() {
         {/* TOP — market-watch ticker, then a slim now-playing + index strip (no brand bar) */}
         <div className="shrink-0">
           {cfg.features.ticker && <PriceTicker prices={sock.prices} />}
-          {(cfg.features.audio || cfg.features.index) && (
+          {(cfg.features.audio || cfg.features.index || showScore) && (
             <div className="flex h-[30px] items-center justify-between gap-3 border-b border-white/12 bg-black/80 px-3 backdrop-blur-sm">
               {cfg.features.audio && np ? (
                 <div className="flex min-w-0 items-center gap-2">
@@ -221,19 +223,22 @@ export function Overlay() {
               ) : (
                 <span />
               )}
-              {cfg.features.index && (
-                <div className="flex shrink-0 items-center gap-4 font-mono text-[12px] tabular-nums">
-                  <span className="text-white/55">
-                    CHAT HYPE <span className="font-bold text-accent">{idx.score}</span>
-                    {idx.affect !== "neutral" && (
-                      <span className="ml-1 text-white/80">{AFFECT_META[idx.affect].label}</span>
-                    )}
-                  </span>
-                  <span className="text-white/55">
-                    MOOD <span className={`font-bold ${idx.mood > 55 ? "text-pos" : idx.mood < 45 ? "text-neg" : "text-white"}`}>{idx.mood}</span>
-                  </span>
-                </div>
-              )}
+              <div className="flex shrink-0 items-center gap-4 font-mono text-[12px] tabular-nums">
+                {showScore && <OverlayScoreboard score={score!} />}
+                {cfg.features.index && (
+                  <>
+                    <span className="text-white/55">
+                      CHAT HYPE <span className="font-bold text-accent">{idx.score}</span>
+                      {idx.affect !== "neutral" && (
+                        <span className="ml-1 text-white/80">{AFFECT_META[idx.affect].label}</span>
+                      )}
+                    </span>
+                    <span className="text-white/55">
+                      MOOD <span className={`font-bold ${idx.mood > 55 ? "text-pos" : idx.mood < 45 ? "text-neg" : "text-white"}`}>{idx.mood}</span>
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -513,6 +518,22 @@ function TopChatters({ messages }: { messages: ChatMessage[] }) {
         ))}
       </div>
     </div>
+  );
+}
+
+// On-air Crowd-vs-Market scorebug — the persisted track record relayed from the dashboard.
+// This is the signature differentiator made visible to the audience: how often chat's call
+// front-ran the market. Sits in the top data strip, broadcast scorebug style.
+function OverlayScoreboard({ score }: { score: CrowdScore }) {
+  return (
+    <span className="flex items-center gap-1.5">
+      <span className="text-white/45">CHAT vs MARKET</span>
+      <span className="font-bold tabular-nums" style={{ color: CROWD }}>{score.chatWins}</span>
+      <span className="text-white/30">-</span>
+      <span className="font-bold tabular-nums" style={{ color: PM_BLUE }}>{score.marketWins}</span>
+      <span className="text-white/70">chat led {score.winRate}%</span>
+      {score.streak >= 3 && <span className="font-bold text-accent">{score.streak} run</span>}
+    </span>
   );
 }
 

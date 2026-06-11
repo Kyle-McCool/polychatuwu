@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ChannelConfig, ChatMessage, NewsItem, NowPlaying, OverlayConfig, PriceItem, Reaction, ServerEvent, SourceStatus } from "../lib/types";
+import type { ChannelConfig, ChatMessage, CrowdScore, NewsItem, NowPlaying, OverlayConfig, PriceItem, Reaction, ServerEvent, SourceStatus } from "../lib/types";
 import { DEFAULT_OVERLAY_CONFIG } from "../lib/types";
 
 const WS_URL = import.meta.env.VITE_WS_URL || `ws://${location.hostname}:8787`;
@@ -29,6 +29,7 @@ export function useChatSocket() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [prices, setPrices] = useState<PriceItem[]>([]);
   const [watch, setWatchLocal] = useState<ChannelConfig | null>(null);
+  const [crowdScore, setCrowdScore] = useState<CrowdScore | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -101,6 +102,9 @@ export function useChatSocket() {
         if (ev.data.news) setNews(ev.data.news);
         if (ev.data.prices) setPrices(ev.data.prices);
         setWatchLocal(ev.data.watch ?? null);
+        setCrowdScore(ev.data.crowdScore ?? null);
+      } else if (ev.type === "crowdScore") {
+        setCrowdScore(ev.data);
       } else if (ev.type === "prices") {
         setPrices(ev.data);
       } else if (ev.type === "overlayConfig") {
@@ -154,6 +158,7 @@ export function useChatSocket() {
     [send],
   );
   const sendNowPlaying = useCallback((np: NowPlaying | null) => send({ type: "nowPlaying", data: np }), [send]);
+  const sendCrowdScore = useCallback((score: CrowdScore) => send({ type: "crowdScore", data: score }), [send]);
   const setWatch = useCallback(
     (c: ChannelConfig | null) => {
       setWatchLocal(c); // optimistic so the dashboard stream switch feels instant
@@ -186,9 +191,11 @@ export function useChatSocket() {
     news,
     prices,
     watch,
+    crowdScore,
     setServerChannels,
     setServerOverlayConfig,
     sendNowPlaying,
+    sendCrowdScore,
     setWatch,
     clear,
     sendReaction,

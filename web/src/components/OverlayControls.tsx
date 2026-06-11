@@ -7,6 +7,7 @@ const FEATURES: { key: OverlayFeature; label: string }[] = [
   { key: "index", label: "Chat Hype / Mood bar" },
   { key: "candle", label: "Chat candle chart" },
   { key: "market", label: "Crowd vs Market bet" },
+  { key: "scoreboard", label: "Crowd vs Market record" },
   { key: "chat", label: "Live chat" },
   { key: "chatters", label: "Top chatters" },
   { key: "wire", label: "Polymarket wire" },
