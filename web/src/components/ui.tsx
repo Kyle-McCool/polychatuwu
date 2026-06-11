@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
+import { Search } from "lucide-react";
 import { siTwitch, siKick, siX } from "simple-icons";
 import type { Platform } from "../lib/types";
 
@@ -238,5 +239,25 @@ export function Input({ className = "", ...props }: InputHTMLAttributes<HTMLInpu
       className={`h-8 rounded-md border border-line bg-elevated/60 px-2.5 text-sm text-fg outline-none transition placeholder:text-fg-muted focus-visible:border-accent/60 focus-visible:ring-2 focus-visible:ring-accent/30 ${className}`}
       {...props}
     />
+  );
+}
+
+/* ---------- Search input ---------- */
+// A deliberately more prominent field than Input: leading search icon (which lights to the
+// accent on focus), opaque fill, a stronger visible border, and a taller body so it reads
+// clearly as "type here" instead of blending into the panel. Pass a short placeholder — long
+// ones clip in narrow rails.
+export function SearchInput({ className = "", ...props }: InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div className={`group relative ${className}`}>
+      <Search
+        size={15}
+        className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-fg-muted transition-colors group-focus-within:text-accent"
+      />
+      <input
+        {...props}
+        className="h-9 w-full rounded-lg border border-line-strong bg-elevated pl-8 pr-2.5 text-sm text-fg text-ellipsis shadow-sm outline-none transition placeholder:text-fg-muted hover:border-fg-muted/50 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/35"
+      />
+    </div>
   );
 }

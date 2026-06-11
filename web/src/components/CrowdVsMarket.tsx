@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Megaphone, Share2, Flame, Zap, Search, X, Brain } from "lucide-react";
+import { Megaphone, Share2, Flame, Zap, X, Brain } from "lucide-react";
+import { SearchInput } from "./ui";
 import type { ChatMessage, CrowdScore, OverlayConfig } from "../lib/types";
 import { usePersisted } from "../hooks/usePersisted";
 import {
@@ -311,16 +312,13 @@ export function CrowdVsMarket({
         {/* search to feature a specific bet (locked during a live round) */}
         {!round && (
           <>
-            <div className="relative mt-2">
-              <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-fg-muted" />
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search a Polymarket bet to feature…"
-                aria-label="Search Polymarket bets"
-                className="h-8 w-full rounded-md border border-line bg-elevated/60 pl-7 pr-2 text-sm text-fg outline-none transition placeholder:text-fg-muted focus-visible:border-accent/60 focus-visible:ring-2 focus-visible:ring-accent/30"
-              />
-            </div>
+            <SearchInput
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search Polymarket bets…"
+              aria-label="Search Polymarket bets"
+              className="mt-2"
+            />
             {(searching || results.length > 0) && (
               <div className="mt-1.5 flex max-h-44 flex-col gap-1 overflow-y-auto">
                 {searching && results.length === 0 && <p className="px-1 py-1 font-mono text-[10px] text-fg-muted">searching…</p>}

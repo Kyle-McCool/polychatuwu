@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Film, Search, Loader2 } from "lucide-react";
+import { Film, Loader2 } from "lucide-react";
 import { trendingGifs, searchGifs, type Gif } from "../lib/gifs";
+import { SearchInput } from "./ui";
 
 /**
  * GIF picker for the Desk tab — trending by default, live search, click to play.
@@ -39,16 +40,13 @@ export function GifPicker({ onGif }: { onGif?: (url: string) => void }) {
       <h3 className="mb-2 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-fg-muted">
         <Film size={12} /> GIFs
       </h3>
-      <div className="relative mb-2">
-        <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-fg-muted" />
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search GIFs…"
-          aria-label="Search GIFs"
-          className="h-8 w-full rounded-md border border-line bg-elevated/60 pl-7 pr-2 text-sm text-fg outline-none transition placeholder:text-fg-muted focus-visible:border-accent/60 focus-visible:ring-2 focus-visible:ring-accent/30"
-        />
-      </div>
+      <SearchInput
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        placeholder="Search GIFs…"
+        aria-label="Search GIFs"
+        className="mb-2"
+      />
       <div className="grid max-h-72 grid-cols-2 gap-1.5 overflow-y-auto">
         {loading && gifs.length === 0 && (
           <div className="col-span-2 flex items-center justify-center py-6 text-fg-muted">
