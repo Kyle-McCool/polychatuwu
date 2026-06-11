@@ -35,6 +35,11 @@ const ACCENT = "var(--color-accent)";
 const MIN_SAMPLE = 10; // don't show a confident % below this many unique voters
 const MIN_META = 5; // surprisingly-popular needs at least this many meta-predictions
 
+// A clearly-labeled PREVIEW record shown before any real round has resolved, so the signature
+// scoreboard (and the chat-edge number) is legible the instant the panel opens instead of a
+// blank box. The moment a real round resolves, the persisted record replaces this entirely.
+const SAMPLE = { resolved: 37, chatWins: 23, marketWins: 14, winRate: 62, streak: 4 };
+
 // Wilson score 95% interval for a binomial proportion — honest about small samples
 // (far better than the naive ±√(p(1-p)/n) near 0/1 and at low n). [Wilson 1927]
 function wilson(p: number, n: number): { margin: number } {
@@ -253,37 +258,57 @@ export function CrowdVsMarket({
         className="rounded-xl border p-3"
         style={{ borderColor: `${PM_BLUE}55`, background: `linear-gradient(160deg, ${PM_BLUE}14, transparent 70%)` }}
       >
-        {/* CROWD vs MARKET scoreboard — chat's running record against the market */}
-        <div className="mb-3 rounded-lg border border-line bg-fg/[0.04] px-3 py-2">
-          <div className="text-center font-display text-[15px] font-bold tracking-tight text-fg">
-            Crowd <span className="text-fg-muted">vs</span> Market
-          </div>
-          {resolved > 0 ? (
-            <>
-              <div className="mt-1.5 flex items-center justify-center gap-4 font-mono tabular-nums">
-                <span className="flex flex-col items-center">
-                  <span className="text-[8px] font-bold uppercase tracking-[0.15em]" style={{ color: ACCENT }}>Chat</span>
-                  <span className="text-[24px] font-black leading-none" style={{ color: ACCENT }}>{chatWins}</span>
+        {/* CROWD vs MARKET scoreboard — chat's running record against the market. Before any
+            real round resolves, a clearly-labeled PREVIEW makes the moat (and the edge %)
+            legible immediately; the real record replaces it the moment a round resolves. */}
+        {(() => {
+          const isSample = resolved === 0;
+          const v = isSample ? SAMPLE : { resolved, chatWins, marketWins, winRate, streak };
+          return (
+            <div className={`mb-3 rounded-lg border px-3 py-2.5 ${isSample ? "border-dashed border-line-strong bg-fg/[0.03]" : "border-line bg-fg/[0.04]"}`}>
+              <div className="flex items-center justify-center gap-1.5">
+                <span className="font-display text-[15px] font-bold tracking-tight text-fg">
+                  Crowd <span className="text-fg-muted">vs</span> Market
                 </span>
-                <span className="text-fg-muted">·</span>
-                <span className="flex flex-col items-center">
-                  <span className="text-[8px] font-bold uppercase tracking-[0.15em]" style={{ color: PM_BLUE }}>Market</span>
-                  <span className="text-[24px] font-black leading-none" style={{ color: PM_BLUE }}>{marketWins}</span>
-                </span>
+                {isSample && (
+                  <span className="rounded bg-fg/10 px-1 font-mono text-[8px] font-bold uppercase tracking-wider text-fg-muted">preview</span>
+                )}
               </div>
-              <div className="mt-1.5 flex items-center justify-center gap-2 font-mono text-[10px] text-fg-muted">
-                <span>chat leads <span className="font-bold text-fg-dim">{winRate}%</span> of {resolved}</span>
-                {streak >= 2 && (
+
+              {/* HERO — the chat-edge number (the quotable stat: chat beat the market X% of calls) */}
+              <div className="mt-2 text-center">
+                <div className="font-mono text-[34px] font-black leading-none tabular-nums" style={{ color: ACCENT }}>{v.winRate}%</div>
+                <div className="mt-1 font-mono text-[9px] uppercase tracking-[0.12em] text-fg-muted">
+                  of {v.resolved} calls, chat front-ran the market
+                </div>
+              </div>
+
+              {/* support — the head-to-head record + streak */}
+              <div className="mt-2 flex items-center justify-center gap-3 font-mono text-[11px] tabular-nums">
+                <span className="flex items-center gap-1">
+                  <span className="text-[8px] font-bold uppercase tracking-wider" style={{ color: ACCENT }}>Chat</span>
+                  <span className="font-black" style={{ color: ACCENT }}>{v.chatWins}</span>
+                </span>
+                <span className="text-fg-muted">-</span>
+                <span className="flex items-center gap-1">
+                  <span className="font-black" style={{ color: PM_BLUE }}>{v.marketWins}</span>
+                  <span className="text-[8px] font-bold uppercase tracking-wider" style={{ color: PM_BLUE }}>Market</span>
+                </span>
+                {v.streak >= 2 && (
                   <span className="flex items-center gap-0.5 font-bold text-accent">
-                    <Flame size={10} /> {streak} in a row
+                    <Flame size={10} /> {v.streak} in a row
                   </span>
                 )}
               </div>
-            </>
-          ) : (
-            <p className="mt-1 text-center font-mono text-[10px] text-fg-muted">run a round below and chat's record builds here</p>
-          )}
-        </div>
+
+              {isSample && (
+                <p className="mt-2 text-center font-mono text-[9px] leading-relaxed text-fg-muted">
+                  sample track record. run a round below and your real one starts here.
+                </p>
+              )}
+            </div>
+          );
+        })()}
 
         {/* current bet (shown on overlay) + clear-to-auto */}
         <div className="flex items-start gap-2">
