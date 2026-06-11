@@ -4,7 +4,7 @@
 
 One screen for live crypto streaming: every chat (Twitch, Kick, X) merged into a single feed, a Polymarket and price terminal beside it, and a broadcast overlay you drop straight into OBS. No API keys, no logins, no paid services. Clone it and run.
 
-Its signature feature, **Crowd vs Market**, scores chat's live YES/NO read against real Polymarket odds, then re-checks the market to see whether it moved chat's way, and keeps a running record of how often it does on a scorebug your audience sees on stream.
+Its signature feature, **Crowd vs Market**, scores chat's live YES/NO read against real Polymarket odds, then re-checks the market to see whether it moved chat's way, and keeps a running record of how often it does on a scorebug your audience sees on stream. As those markets actually resolve on Polymarket, it also settles each call against the real outcome and scores chat's forecast against the market's with a Brier score, so the "is chat actually better than the market" question is answered on ground truth, not just short-term drift.
 
 Built for the Market Bubble Vibe Code Challenge.
 

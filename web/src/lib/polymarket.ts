@@ -15,6 +15,8 @@ export type PMItem = {
   cat: string;
   binary: boolean; // true = single Yes/No market (ideal for chat YES/NO comparison)
   dayChange: number; // 24h YES-price change in points (signed) — for "big move" alerts
+  marketId?: string; // the specific market's id (binary only) — to look its resolution up later
+  endDate?: string; // ISO date the market is expected to resolve
 };
 
 // Polymarket grouped-event titles carry a blank ("Bitcoin above ___ on June 7?")
@@ -32,6 +34,8 @@ function eventToItem(ev: any, cat: string): PMItem | null {
     let label = ev.title;
     let yesPct: number;
     let dayChange = 0;
+    let marketId: string | undefined;
+    let endDate: string | undefined;
     const binary = markets.length === 1;
     if (binary) {
       const outcomes = JSON.parse(markets[0].outcomes);
@@ -39,6 +43,8 @@ function eventToItem(ev: any, cat: string): PMItem | null {
       const yi = Math.max(0, outcomes.indexOf("Yes"));
       yesPct = Math.round(parseFloat(prices[yi]) * 100);
       dayChange = Math.round((parseFloat(markets[0].oneDayPriceChange) || 0) * 100);
+      marketId = markets[0].id != null ? String(markets[0].id) : undefined;
+      endDate = markets[0].endDate || ev.endDate || undefined;
     } else {
       // grouped event = one question, many strike markets. Pick the MOST CONTESTED
       // strike (closest to 50%) so the overlay shows a live, undecided bet instead of
@@ -73,6 +79,8 @@ function eventToItem(ev: any, cat: string): PMItem | null {
       cat,
       binary,
       dayChange,
+      marketId,
+      endDate,
     };
   } catch {
     return null;
@@ -167,6 +175,43 @@ export async function fetchMarketBySlug(slug: string): Promise<PMItem | null> {
     .catch(() => null);
   const ev = Array.isArray(events) ? events[0] : null;
   return ev ? eventToItem(ev, "Market") : null;
+}
+
+/**
+ * Look up the ACTUAL resolved outcome of one binary market (keyless, Gamma API). Returns 1 if
+ * it resolved YES, 0 if NO, or null if it is not resolved yet (so the caller keeps waiting).
+ * This is the ground truth used to score chat's call AND the market's price against what really
+ * happened (a Brier-score record), instead of the short-term directional read.
+ */
+export async function resolveMarket(slug: string, marketId: string): Promise<0 | 1 | null> {
+  const url = `https://gamma-api.polymarket.com/events?slug=${encodeURIComponent(slug)}`;
+  const events = await fetch(url)
+    .then((r) => r.json())
+    .catch(() => null);
+  const ev = Array.isArray(events) ? events[0] : null;
+  if (!ev) return null;
+  const m = (ev.markets || []).find((x: any) => String(x.id) === String(marketId));
+  if (!m || !m.closed || m.umaResolutionStatus !== "resolved") return null;
+  try {
+    const outcomes = JSON.parse(m.outcomes);
+    const prices = JSON.parse(m.outcomePrices);
+    const yi = Math.max(0, outcomes.indexOf("Yes"));
+    const yesPrice = parseFloat(prices[yi]);
+    if (!Number.isFinite(yesPrice)) return null;
+    return yesPrice > 0.5 ? 1 : 0; // a resolved binary market settles to 1 / 0 on the winning side
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Brier score for one probabilistic forecast against a binary outcome: the squared error
+ * (forecast - outcome)^2, in [0,1], lower is better. A strictly proper scoring rule, so it
+ * rewards being both correct AND well-calibrated. [Brier 1950] We score chat's call and the
+ * market's price with the same rule, against the real outcome, to compare forecasters fairly.
+ */
+export function brier(forecast: number, outcome: 0 | 1): number {
+  return (forecast - outcome) ** 2;
 }
 
 /** Re-fetch one market's current YES% by id (to check if it moved toward chat). */

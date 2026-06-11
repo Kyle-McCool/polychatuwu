@@ -7,6 +7,8 @@ import {
   fetchCryptoMarkets,
   fetchMarketBySlug,
   fetchMarketYes,
+  resolveMarket,
+  brier,
   searchMarkets,
   PM_BLUE,
   PM_ICON,
@@ -27,6 +29,19 @@ type Snapshot = {
   marketLater: number | null;
   led: boolean | null;
   ts: number;
+};
+
+// A chat call on a binary market, kept until that market actually resolves on Polymarket.
+// chatYes / marketYes are 0..1 probabilities; outcome is the real 0/1 result once settled.
+// This powers the rigorous "settled vs the market" Brier record (real outcomes, not drift).
+type Prediction = {
+  slug: string;
+  marketId: string;
+  label: string;
+  chatYes: number;
+  marketYes: number;
+  ts: number;
+  outcome?: 0 | 1;
 };
 
 // chat = the brand accent (theme-aware: off-white on dark, dark ink on light) so it reads
@@ -77,7 +92,7 @@ export function CrowdVsMarket({
   msgsRef.current = messages;
 
   const [featured, setFeatured] = useState<PMItem | null>(null);
-  const [round, setRound] = useState<{ startTs: number; marketStart: number; label: string; id: string } | null>(null);
+  const [round, setRound] = useState<{ startTs: number; marketStart: number; label: string; id: string; marketId?: string; binary?: boolean } | null>(null);
   const [tally, setTally] = useState<{ yes: number; no: number; metaMean: number | null; metaCount: number }>({
     yes: 0,
     no: 0,
@@ -89,8 +104,34 @@ export function CrowdVsMarket({
   const snapsRef = useRef<Snapshot[]>([]);
   // chat's running track record vs the market, persisted so it accumulates across streams
   const [record, setRecord] = usePersisted<{ led: boolean; ts: number }[]>("tape.crowdRecord", []);
+  // chat calls on binary markets, settled against the ACTUAL Polymarket outcome (Brier record)
+  const [preds, setPreds] = usePersisted<Prediction[]>("tape.crowdPredictions", []);
   const rechecks = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => rechecks.current.forEach(clearTimeout), []);
+
+  // Settle pending predictions against the ACTUAL Polymarket outcome (keyless) as markets
+  // resolve — on mount and every few minutes — so the "settled vs the market" record is
+  // scored on what really happened, not short-term drift.
+  useEffect(() => {
+    let alive = true;
+    const check = async () => {
+      const pending = preds.filter((p) => p.outcome === undefined);
+      for (const p of pending) {
+        const outcome = await resolveMarket(p.slug, p.marketId);
+        if (!alive) return;
+        if (outcome !== null) {
+          setPreds((prev) => prev.map((x) => (x.ts === p.ts && x.marketId === p.marketId ? { ...x, outcome } : x)));
+        }
+      }
+    };
+    check();
+    const id = setInterval(check, 180000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preds.length]);
 
   // search-to-pick a bet
   const [q, setQ] = useState("");
@@ -172,6 +213,13 @@ export function CrowdVsMarket({
         clearInterval(id); // finalize exactly once: stop ticks now, before the async setRound(null)
         const total = y + n;
         const chatYes = total ? Math.round((y / total) * 100) : 50;
+        // on a binary market, also bank a prediction to settle against the real outcome later
+        if (round.binary && round.marketId) {
+          const mid = round.marketId;
+          setPreds((prev) =>
+            [{ slug: round.id, marketId: mid, label: round.label, chatYes: chatYes / 100, marketYes: round.marketStart / 100, ts: now }, ...prev].slice(0, 200),
+          );
+        }
         const snap: Snapshot = { label: round.label, chatYes, marketStart: round.marketStart, marketLater: null, led: null, ts: now };
         snapsRef.current = [snap, ...snapsRef.current].slice(0, 12);
         setSnaps([...snapsRef.current]);
@@ -199,7 +247,7 @@ export function CrowdVsMarket({
 
   function ask() {
     if (!featured || round) return;
-    setRound({ startTs: Date.now(), marketStart: featured.yesPct, label: featured.label, id: featured.id });
+    setRound({ startTs: Date.now(), marketStart: featured.yesPct, label: featured.label, id: featured.id, marketId: featured.marketId, binary: featured.binary });
     setTally({ yes: 0, no: 0, metaMean: null, metaCount: 0 });
     setSecsLeft(ROUND_SEC);
   }
@@ -233,6 +281,16 @@ export function CrowdVsMarket({
     if (r.led) streak += 1;
     else break;
   }
+
+  // settled-outcome record (the rigorous one): chat's Brier vs the market's Brier on the calls
+  // whose markets have actually resolved on Polymarket. Lower Brier = the better forecaster.
+  const settled = preds.filter((p) => p.outcome !== undefined) as (Prediction & { outcome: 0 | 1 })[];
+  const settledN = settled.length;
+  const pendingN = preds.length - settledN;
+  const chatBrier = settledN ? settled.reduce((a, p) => a + brier(p.chatYes, p.outcome), 0) / settledN : null;
+  const mktBrier = settledN ? settled.reduce((a, p) => a + brier(p.marketYes, p.outcome), 0) / settledN : null;
+  const chatRight = settled.filter((p) => (p.chatYes >= 0.5) === (p.outcome === 1)).length;
+  const chatBeatsMarket = chatBrier != null && mktBrier != null && chatBrier < mktBrier;
 
   // relay the track-record summary so the overlay scoreboard (a separate browser that
   // can't read this dashboard's localStorage) can show the on-air record
@@ -309,6 +367,38 @@ export function CrowdVsMarket({
             </div>
           );
         })()}
+
+        {/* SETTLED vs the market — the rigorous record: chat's Brier vs the market's Brier on
+            calls whose Polymarket markets have actually resolved. Builds over time as markets settle. */}
+        {(settledN > 0 || pendingN > 0) && (
+          <div className="mb-3 rounded-lg border border-line bg-fg/[0.03] px-3 py-2">
+            <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.12em] text-fg-muted">
+              <span>Settled vs the market</span>
+              {pendingN > 0 && <span>{pendingN} pending</span>}
+            </div>
+            {settledN > 0 ? (
+              <>
+                <div className="mt-1.5 flex items-center justify-center gap-3 font-mono text-[12px] tabular-nums">
+                  <span className="text-fg-dim">
+                    chat called <span className="font-bold text-fg">{chatRight}</span>/{settledN} right
+                  </span>
+                  <span className={`font-bold ${chatBeatsMarket ? "text-pos" : "text-fg-muted"}`}>
+                    Brier {chatBrier!.toFixed(2)} vs {mktBrier!.toFixed(2)}
+                  </span>
+                </div>
+                <p className="mt-1 text-center font-mono text-[9px] leading-relaxed text-fg-muted">
+                  {chatBeatsMarket
+                    ? "on settled calls, chat is the better forecaster (lower Brier wins)"
+                    : "scored on actual Polymarket outcomes · lower Brier is better"}
+                </p>
+              </>
+            ) : (
+              <p className="mt-1 text-center font-mono text-[9px] leading-relaxed text-fg-muted">
+                {pendingN} call{pendingN === 1 ? "" : "s"} waiting on Polymarket to resolve. real outcomes settle here.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* current bet (shown on overlay) + clear-to-auto */}
         <div className="flex items-start gap-2">
