@@ -76,7 +76,7 @@ export function Button({
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: Size; icon?: ReactNode }) {
   return (
     <button
-      className={`inline-flex shrink-0 items-center justify-center rounded-md font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-accent/50 disabled:pointer-events-none disabled:opacity-50 ${BTN_SIZE[size]} ${BTN_VARIANT[variant]} ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-md font-medium outline-none transition duration-150 ease-out active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-accent/50 disabled:pointer-events-none disabled:opacity-50 ${BTN_SIZE[size]} ${BTN_VARIANT[variant]} ${className}`}
       {...props}
     >
       {icon}
@@ -99,7 +99,7 @@ export function IconButton({
       aria-label={label}
       title={label}
       style={{ width: size, height: size }}
-      className={`inline-flex items-center justify-center rounded-md outline-none transition focus-visible:ring-2 focus-visible:ring-accent/50 hover:bg-elevated active:brightness-95 ${
+      className={`inline-flex items-center justify-center rounded-md outline-none transition duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent/50 hover:bg-elevated active:scale-[0.94] active:brightness-95 ${
         active ? "bg-elevated text-fg" : "text-fg-dim hover:text-fg"
       } ${className}`}
       {...props}
@@ -125,7 +125,7 @@ export function Switch({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full outline-none transition focus-visible:ring-2 focus-visible:ring-accent/50 ${
+      className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full outline-none transition duration-150 ease-out active:scale-95 focus-visible:ring-2 focus-visible:ring-accent/50 ${
         checked ? "bg-accent" : "bg-line-strong"
       }`}
     >
@@ -162,7 +162,7 @@ export function SegmentedControl<T extends string>({
           key={o.value}
           title={o.title}
           onClick={() => onChange(o.value)}
-          className={`inline-flex h-6 items-center justify-center gap-1 rounded px-2 text-xs font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-accent/50 ${
+          className={`inline-flex h-6 items-center justify-center gap-1 rounded px-2 text-xs font-medium outline-none transition duration-150 ease-out active:scale-95 focus-visible:ring-2 focus-visible:ring-accent/50 ${
             value === o.value ? "bg-accent/15 text-accent" : "text-fg-dim hover:text-fg"
           }`}
         >

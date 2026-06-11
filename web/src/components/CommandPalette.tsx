@@ -16,7 +16,9 @@ export function CommandPalette({
 }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [sel, setSel] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -34,9 +36,15 @@ export function CommandPalette({
   useEffect(() => {
     if (open) {
       setQ("");
+      setSel(0);
       setTimeout(() => inputRef.current?.focus(), 0);
     }
   }, [open]);
+
+  // keep the highlighted row scrolled into view as you arrow through
+  useEffect(() => {
+    listRef.current?.querySelector(`[data-idx="${sel}"]`)?.scrollIntoView({ block: "nearest" });
+  }, [sel]);
 
   if (!open) return null;
   const close = () => setOpen(false);
@@ -58,6 +66,21 @@ export function CommandPalette({
     }
   };
 
+  // one keyboard-navigable list: the live "search the feed" row (when typing), then commands
+  const items: { id: string; icon: ReactNode; label: ReactNode; run: () => void; accent?: boolean }[] = [
+    ...(q.trim()
+      ? [{
+          id: "__search",
+          icon: <Search size={14} className="text-accent" />,
+          label: (<>Search feed for&nbsp;<span className="font-semibold text-accent">"{q.trim()}"</span></>),
+          run: search,
+          accent: true,
+        }]
+      : []),
+    ...shown.map((c) => ({ id: c.id, icon: <span className="text-fg-muted">{c.icon}</span>, label: c.label as ReactNode, run: c.run })),
+  ];
+  const cur = Math.min(sel, Math.max(0, items.length - 1));
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 pt-[12vh] backdrop-blur-sm" onClick={close}>
       <div className="w-full max-w-lg overflow-hidden rounded-xl border border-line bg-surface shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -66,31 +89,37 @@ export function CommandPalette({
           <input
             ref={inputRef}
             value={q}
-            onChange={(e) => setQ(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && search()}
+            onChange={(e) => { setQ(e.target.value); setSel(0); }}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowDown") { e.preventDefault(); setSel((s) => Math.min(s + 1, items.length - 1)); }
+              else if (e.key === "ArrowUp") { e.preventDefault(); setSel((s) => Math.max(s - 1, 0)); }
+              else if (e.key === "Enter") { e.preventDefault(); items[cur]?.run(); }
+            }}
             placeholder="Search the feed or run a command…"
             className="flex-1 bg-transparent text-sm text-fg outline-none placeholder:text-fg-muted"
           />
           <kbd className="rounded border border-line px-1.5 py-0.5 font-mono text-[10px] text-fg-muted">esc</kbd>
         </div>
-        <div className="max-h-72 overflow-y-auto p-1.5">
-          {q.trim() && (
-            <button onClick={search} className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm text-fg hover:bg-elevated">
-              <Search size={14} className="text-accent" /> Search feed for&nbsp;<span className="font-semibold text-accent">"{q.trim()}"</span>
-            </button>
+        <div ref={listRef} className="max-h-72 overflow-y-auto p-1.5">
+          {items.length === 0 && (
+            <p className="px-2.5 py-3 text-center font-mono text-[11px] text-fg-muted">No commands match.</p>
           )}
-          {shown.map((c) => (
+          {items.map((it, i) => (
             <button
-              key={c.id}
-              onClick={c.run}
-              className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm text-fg-dim outline-none transition hover:bg-elevated hover:text-fg"
+              key={it.id}
+              data-idx={i}
+              onMouseMove={() => setSel(i)}
+              onClick={it.run}
+              className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm outline-none transition ${
+                cur === i ? "bg-elevated text-fg" : it.accent ? "text-fg" : "text-fg-dim"
+              }`}
             >
-              <span className="text-fg-muted">{c.icon}</span> {c.label}
+              {it.icon} {it.label}
             </button>
           ))}
         </div>
         <div className="border-t border-line px-3 py-1.5 font-mono text-[10px] text-fg-muted">
-          ⌘K toggle · enter to search · esc to close
+          Ctrl K · ↑↓ to move · enter to run · esc to close
         </div>
       </div>
     </div>
