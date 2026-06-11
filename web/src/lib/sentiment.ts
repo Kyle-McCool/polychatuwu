@@ -3,15 +3,18 @@
 // matching whole words only, and counts ONE bull/bear vote per message (not one
 // per keyword) so a single hype message can't read as "100% bull".
 
+// Whole-word matched. Deliberately excludes ambiguous unigrams that fire on ordinary
+// chat regardless of market view ("up", "gm", "send", "over", "dead") so the read stays
+// directional rather than picking up greetings and filler.
 const BULL_WORDS = [
   "moon", "mooning", "pump", "pumping", "bull", "bullish", "bullrun", "lfg", "green",
   "buy", "buying", "long", "longing", "based", "ath", "breakout", "hodl", "wagmi",
-  "gm", "send", "sending", "up", "green", "rocket", "based",
+  "sending", "rocket",
 ];
 const BEAR_WORDS = [
   "dump", "dumping", "bear", "bearish", "rug", "rugged", "rekt", "ngmi", "sell",
-  "selling", "short", "shorting", "red", "liquidated", "crash", "crashing", "dead",
-  "scam", "cooked", "down", "rip", "over",
+  "selling", "short", "shorting", "red", "liquidated", "crash", "crashing",
+  "scam", "cooked", "down", "rip",
 ];
 const BULL_EMOJI = ["🚀", "📈", "🟢", "🔥", "💎", "🌙"];
 const BEAR_EMOJI = ["📉", "🔴", "💀", "🩸", "⚰️"];

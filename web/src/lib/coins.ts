@@ -19,17 +19,15 @@ export function setTickerPrices(items: { symbol: string; price: number; change: 
   for (const i of items) ticker.set(i.symbol.toUpperCase(), { price: i.price, change: i.change });
 }
 
+// Throws on a network error or a non-ok response (rate limit) so the caller can treat it
+// as transient; returns null only for a genuine "no such coin" (empty results).
 async function searchId(sym: string): Promise<string | null> {
-  try {
-    const r = await fetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(sym)}`);
-    if (!r.ok) return null;
-    const j = await r.json();
-    const coins = j.coins || [];
-    const exact = coins.find((c: any) => (c.symbol || "").toUpperCase() === sym.toUpperCase());
-    return (exact || coins[0])?.id || null;
-  } catch {
-    return null;
-  }
+  const r = await fetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(sym)}`);
+  if (!r.ok) throw new Error(`search ${r.status}`);
+  const j = await r.json();
+  const coins = j.coins || [];
+  const exact = coins.find((c: any) => (c.symbol || "").toUpperCase() === sym.toUpperCase());
+  return (exact || coins[0])?.id || null;
 }
 
 export async function getCoin(sym: string): Promise<Coin | null> {
@@ -38,22 +36,22 @@ export async function getCoin(sym: string): Promise<Coin | null> {
   if (t) return t;
   const c = cache.get(S);
   if (c && Date.now() - c.ts < 120000) return c.v;
-  let v: Coin | null = null;
   try {
+    let v: Coin | null = null;
     const id = ID_MAP[S] || (await searchId(S));
     if (id) {
       const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd&include_24hr_change=true`);
-      if (r.ok) {
-        const j = await r.json();
-        const d = j[id];
-        if (d && typeof d.usd === "number") v = { price: d.usd, change: d.usd_24h_change || 0 };
-      }
+      if (!r.ok) throw new Error(`price ${r.status}`);
+      const j = await r.json();
+      const d = j[id];
+      if (d && typeof d.usd === "number") v = { price: d.usd, change: d.usd_24h_change || 0 };
     }
+    // only cache a completed lookup (found, or genuinely not found) — never a transient failure
+    cache.set(S, { v, ts: Date.now() });
+    return v;
   } catch {
-    v = null;
+    return null; // network / rate-limit blip: don't cache, let the next hover retry
   }
-  cache.set(S, { v, ts: Date.now() });
-  return v;
 }
 
 export function fmtPrice(p: number): string {
