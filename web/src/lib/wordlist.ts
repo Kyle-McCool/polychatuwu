@@ -82,6 +82,39 @@ export function buildMatcher(terms: string[]): RegExp | null {
 // Pre-compiled built-in slur matcher (custom words compile separately at runtime).
 export const SLUR_MATCHER = buildMatcher(SLURS);
 
+// ── Targeted-harm detection (for the Mod queue's severity classifier) ──
+//
+// Threats only fire when a violence verb co-occurs with a SECOND-PERSON target
+// (you / yourself / @name) — so in-game "kill the boss" or "shoot your shot" stay
+// clean while "im gonna kill you" / "@x stab you" are flagged.
+export const THREAT_VERBS = [
+  "kill", "murder", "stab", "shoot", "behead", "rape", "lynch", "slit", "strangle",
+  "choke", "kidnap", "decapitate", "gut", "shank", "execute",
+];
+export const THREAT_MATCHER = buildMatcher(THREAT_VERBS);
+// second-person target (deliberately excludes "your"/"ur" to drop "shoot your shot")
+export const THREAT_TARGET = /\b(you|u|ya|yourself|urself|ur\s?self)\b|@\w/i;
+
+// Telling someone to self-delete — always directed, always serious.
+export const SELFHARM_RE =
+  /\bk+ys+\b|\bk+ms+\b|\bkill\s+(?:your|ur)\s?self\b|\bneck\s+(?:your|ur)\s?self\b|\b(?:an?\s?hero|off\s+(?:your|ur)\s?self|rope\s+(?:your|ur)\s?self|end\s+(?:your|ur)\s?self)\b|\bdrink\s+bleach\b/i;
+
+// Demeaning personal attacks — harassment when paired with a target (the harsher set
+// only; mild banter like "trash"/"bad" is intentionally left out to cut false positives).
+export const INSULTS = [
+  "loser", "pathetic", "worthless", "ugly", "stupid", "idiot", "moron", "dumbass",
+  "clown", "subhuman", "disgusting", "creep", "freak", "degenerate", "braindead", "imbecile",
+];
+export const INSULT_MATCHER = buildMatcher(INSULTS);
+
+// Personal-info leaks (doxxing) — specific enough to keep false positives low.
+export const DOXX_PATTERNS: RegExp[] = [
+  /\b\d{3}[-.\s]\d{3}[-.\s]\d{4}\b/, // phone number
+  /\b\d{1,5}\s+(?:[a-z0-9]+\s){1,3}(?:street|st|avenue|ave|road|rd|blvd|lane|ln|drive|dr|court|ct|way|circle|cir)\b/i, // street address
+  /\b(?:lives?|live)\s+(?:at|on)\s+\d/i, // "lives at 123"
+  /\b(?:his|her|their|your)\s+(?:address|phone\s?number|real\s?name|home\s?address)\s+(?:is|:|=)/i,
+];
+
 /** Total count for transparency / UI display. */
 export const BUILTIN_SLUR_COUNT = SLURS.length;
 export const SCAM_PATTERN_COUNT = SCAM_PATTERNS.length;

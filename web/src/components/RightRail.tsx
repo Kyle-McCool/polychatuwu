@@ -9,7 +9,7 @@ import { GifPicker } from "./GifPicker";
 import { PolymarketWire } from "./CryptoWire";
 import { Newswire } from "./Newswire";
 import { sentimentOf, MIN_SENTIMENT_SAMPLE } from "../lib/sentiment";
-import { isBot, classifyRisk } from "../lib/moderation";
+import { isBot, classifyMessage } from "../lib/moderation";
 import { isReturning, rememberUser } from "../lib/regulars";
 import { ModDesk } from "./ModDesk";
 
@@ -51,7 +51,10 @@ export function RightRail({
 
     for (const m of messages) {
       if (isBot(m.user)) continue;
-      if (now - m.ts < 12 * 60000 && classifyRisk(m.text)) flagged += 1;
+      if (now - m.ts < 12 * 60000) {
+        const f = classifyMessage(m.text);
+        if (f && f.level >= 2) flagged += 1; // badge tracks actionable flags, not caps/spam noise
+      }
       const ts = (traderStats[m.user] ||= { msgs: 0, tags: 0, whale: 0 });
       ts.msgs += 1;
       if (m.cashtags?.length) ts.tags += m.cashtags.length;

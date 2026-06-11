@@ -6,7 +6,18 @@
 //
 // The actual banned terms live in ./wordlist.ts (readable + documented).
 
-import { SLUR_MATCHER, SCAM_PATTERNS, deleet, buildMatcher } from "./wordlist";
+import {
+  SLUR_MATCHER,
+  SCAM_PATTERNS,
+  deleet,
+  buildMatcher,
+  THREAT_MATCHER,
+  THREAT_TARGET,
+  SELFHARM_RE,
+  INSULT_MATCHER,
+  DOXX_PATTERNS,
+} from "./wordlist";
+import type { Platform } from "./types";
 
 // The streamer's own block list (from the Sidebar "Blocked words" box). Compiled
 // once whenever it changes so per-message checks stay cheap.
@@ -41,24 +52,60 @@ export function isJunk(text: string): boolean {
 const SAFE_LINK = /(?:twitch\.tv|kick\.com|x\.com|twitter\.com|youtu\.be|youtube\.com|polymarket\.com)/i;
 const LINKISH = /\bhttps?:\/\/\S+|\b[a-z0-9-]{2,}\.(?:com|net|io|xyz|gg|tv|ly|link|shop|app|co|me|info|vip|win|live|fun)\b/i;
 
-export type RiskFlag = { level: 1 | 2; reason: string };
+// Moderation taxonomy. Severity:
+//   3 = act now   (slurs, credible threats, self-harm targeting, doxxing)
+//   2 = review    (scams, targeted harassment)
+//   1 = watch     (off-platform links, caps shouting, copypasta spam)
+export type ModCategory =
+  | "slur" | "threat" | "self-harm" | "doxx" | "scam" | "harassment" | "link" | "caps" | "spam";
+export type ModFlag = { level: 1 | 2 | 3; category: ModCategory };
 
 /**
- * Richer moderation read than isJunk: a severity + reason for the streamer's Mod queue.
- *   level 2 = act now (slurs, scams)
- *   level 1 = keep an eye on it (caps shouting, off-platform links, copypasta spam)
- * Detection only. Actually banning a user on Twitch/Kick/X needs the streamer's platform
- * login, which stays out of scope so the tool runs keyless.
+ * Context-aware severity classifier for the Mod queue. Reads the chat stream we already
+ * have (keyless) and grades each message, with guards to keep banter out of the queue:
+ * threats need a violence verb AND a second-person target, harassment needs a real insult
+ * AND a target, so "kill the boss" / "this game is trash" stay clean.
  */
-export function classifyRisk(text: string): RiskFlag | null {
-  if (hasSlur(text)) return { level: 2, reason: "slur" };
-  if (isScam(text)) return { level: 2, reason: "scam" };
+export function classifyMessage(text: string): ModFlag | null {
   const t = (text || "").trim();
-  if (LINKISH.test(t) && !SAFE_LINK.test(t)) return { level: 1, reason: "link" };
+  if (!t) return null;
+  const d = deleet(t);
+
+  // ── level 3: act now ──
+  if (hasSlur(t)) return { level: 3, category: "slur" };
+  if (SELFHARM_RE.test(t)) return { level: 3, category: "self-harm" };
+  if (THREAT_MATCHER && THREAT_MATCHER.test(d) && THREAT_TARGET.test(t)) return { level: 3, category: "threat" };
+  if (DOXX_PATTERNS.some((re) => re.test(t))) return { level: 3, category: "doxx" };
+
+  // ── level 2: review ──
+  if (isScam(t)) return { level: 2, category: "scam" };
+  if (INSULT_MATCHER && INSULT_MATCHER.test(d) && THREAT_TARGET.test(t)) return { level: 2, category: "harassment" };
+
+  // ── level 1: watch ──
+  if (LINKISH.test(t) && !SAFE_LINK.test(t)) return { level: 1, category: "link" };
   const letters = t.replace(/[^a-zA-Z]/g, "");
-  if (letters.length >= 14 && letters === letters.toUpperCase()) return { level: 1, reason: "caps" };
-  if (/(.)\1{9,}/.test(t)) return { level: 1, reason: "spam" };
+  if (letters.length >= 14 && letters === letters.toUpperCase()) return { level: 1, category: "caps" };
+  if (/(.)\1{9,}/.test(t)) return { level: 1, category: "spam" };
   return null;
+}
+
+/**
+ * Paste-ready chat moderation command for a platform. These are the native chat commands
+ * a streamer (or their mods) type into their OWN chat — so they work with zero auth, which
+ * keeps the app keyless while still being one paste from an actual ban/timeout. X live chat
+ * has no such command, so callers fall back to copying the @handle there.
+ */
+export function modCommand(platform: Platform, user: string, action: "ban" | "timeout"): string | null {
+  const u = user.replace(/^@/, "");
+  if (!u) return null;
+  switch (platform) {
+    case "twitch":
+      return action === "ban" ? `/ban ${u}` : `/timeout ${u} 600`; // seconds
+    case "kick":
+      return action === "ban" ? `/ban ${u}` : `/timeout ${u} 10`; // minutes
+    default:
+      return null; // X / native — no chat mod command; copy the @handle instead
+  }
 }
 
 // Known chat bots — excluded from raffle votes, predictions, and leaderboards
