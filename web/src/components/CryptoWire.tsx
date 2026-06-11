@@ -50,7 +50,7 @@ export function PolymarketWire() {
         <Radio size={12} /> Polymarket wire
       </h3>
       {items.length === 0 ? (
-        <EmptyState size={52}>tapping Polymarket for popular bets &amp; big moves…</EmptyState>
+        <EmptyState size={52}>Loading popular bets and big moves from Polymarket…</EmptyState>
       ) : (
         <div className="flex flex-col gap-1.5">
           {movers.map((m) => (

@@ -139,14 +139,14 @@ export function ModDesk({ messages }: { messages: ChatMessage[] }) {
                         <>
                           <button
                             onClick={() => act(m.platform, m.user, "timeout", m.id + "t")}
-                            title={`Copy ${modCommand(m.platform, m.user, "timeout")} — paste in your chat`}
+                            title={`Copy ${modCommand(m.platform, m.user, "timeout")}. Paste in your chat`}
                             className="rounded p-0.5 text-fg-muted outline-none transition hover:text-warn focus-visible:ring-2 focus-visible:ring-accent/50"
                           >
                             {copied === m.id + "t" ? <Check size={12} /> : <Clock size={12} />}
                           </button>
                           <button
                             onClick={() => act(m.platform, m.user, "ban", m.id + "b")}
-                            title={`Copy ${modCommand(m.platform, m.user, "ban")} — paste in your chat`}
+                            title={`Copy ${modCommand(m.platform, m.user, "ban")}. Paste in your chat`}
                             className="rounded p-0.5 text-fg-muted outline-none transition hover:text-neg focus-visible:ring-2 focus-visible:ring-accent/50"
                           >
                             {copied === m.id + "b" ? <Check size={12} /> : <Ban size={12} />}
@@ -190,7 +190,7 @@ export function ModDesk({ messages }: { messages: ChatMessage[] }) {
                     <span className={`font-mono text-[10px] font-bold ${o.maxLevel >= 3 ? "text-neg" : "text-warn"}`}>{o.count} flags</span>
                     <button
                       onClick={() => act(o.platform, user, "ban", "off-" + user)}
-                      title={noCmd ? "Copy @handle (X has no chat mod command)" : `Copy ${modCommand(o.platform, user, "ban")} — paste in your chat`}
+                      title={noCmd ? "Copy @handle (X has no chat mod command)" : `Copy ${modCommand(o.platform, user, "ban")}. Paste in your chat`}
                       className="flex items-center gap-1 rounded bg-neg/15 px-1.5 py-0.5 font-mono text-[10px] font-bold text-neg outline-none transition hover:bg-neg/25 focus-visible:ring-2 focus-visible:ring-accent/50"
                     >
                       {copied === "off-" + user ? <Check size={11} /> : <Ban size={11} />} Ban
@@ -204,8 +204,8 @@ export function ModDesk({ messages }: { messages: ChatMessage[] }) {
       )}
 
       <p className="font-mono text-[9px] leading-relaxed text-fg-muted">
-        Timeout / Ban copy the native chat command for you to paste into your own chat — actionable with no login, so
-        the app stays keyless. Detection runs on your device.
+        Timeout / Ban copy the native chat command for you to paste into your own chat. Works with no login, so the app
+        stays keyless. Detection runs on your device.
       </p>
     </div>
   );

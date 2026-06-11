@@ -2,7 +2,16 @@
 
 One screen for live crypto streaming. Every chat (Twitch, Kick, X) merged into a single feed, a market terminal beside it (live prices, Polymarket odds, a crypto newswire), and a broadcast overlay you drop straight into OBS. No API keys, no logins, no paid services.
 
+Its signature feature, **Crowd vs Market**, scores chat's live YES/NO read against real Polymarket odds and keeps a running record of how often chat front-ran the market.
+
 Built for the Market Bubble Vibe Code Challenge.
+
+## Highlights
+
+* **Crowd vs Market** — chat's live sentiment against real Polymarket odds, with a persisted record of how often chat front-ran the market and an on-air scoreboard for the overlay.
+* **Pro moderation** — a context-aware classifier grades slurs, threats, doxxing, scams, and spam by severity, with one-click Timeout/Ban that copy the native chat command to paste (no login needed).
+* **Broadcast graphics** — a serif "NOW DISCUSSING" lower-third with guest name plates, plus a one-click stream-recap card built to share on X.
+* **Real emotes** — Twitch, 7TV, BTTV, and FFZ all render inline in the merged feed.
 
 ## What you get
 
@@ -10,8 +19,8 @@ Three pages, one server:
 
 | Route | Who it is for | What it is |
 |-------|---------------|------------|
-| `/` or `/app` | the streamer | the cockpit: merged chat, a candle of chat hype, prices, Polymarket, the newswire, soundboard and a watch view |
-| `/overlay` | OBS | a transparent broadcast layer (chat, hype, crowd vs market, news toasts). Add `?solid` to preview it on black |
+| `/` or `/app` | the streamer | the cockpit: merged chat, a candle of chat hype, prices, Polymarket, the newswire, a moderation queue, a soundboard, a stream-recap card and a watch view |
+| `/overlay` | OBS | a transparent broadcast layer (chat, hype, crowd vs market scoreboard, lower-third, news toasts). Add `?solid` to preview it on black |
 | `/watch` | your audience | a read only page with the stream and the shared chat. No login, nothing to download |
 
 ## Requirements

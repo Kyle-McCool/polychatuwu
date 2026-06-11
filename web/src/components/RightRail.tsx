@@ -322,7 +322,9 @@ function ChatterBoard({ traders }: { traders: [string, number][] }) {
         <Users size={12} /> Top chatters
       </h3>
       <div className="flex flex-col gap-1">
-        {traders.length === 0 && <p className="px-1 font-mono text-[11px] text-fg-muted">·</p>}
+        {traders.length === 0 && (
+          <p className="px-1 font-mono text-[11px] text-fg-muted">Top chatters show up here as people start typing.</p>
+        )}
         {traders.map(([user, score], i) => (
           <div
             key={user}

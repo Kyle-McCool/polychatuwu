@@ -198,6 +198,14 @@ export function Terminal() {
               className={`absolute inset-0 bg-base ${centerView === "chart" ? "z-10 opacity-100" : "pointer-events-none z-0 opacity-0"}`}
             >
               <CandleChart messages={messages} bucketSec={tf} />
+              {sock.channels.length === 0 && (
+                <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 bg-base/70 text-center backdrop-blur-[1px]">
+                  <p className="font-mono text-sm font-semibold text-fg">Add a channel to start the tape</p>
+                  <p className="max-w-xs font-mono text-[11px] leading-relaxed text-fg-muted">
+                    Open the Channels tab on the left and click a suggested streamer to go live in one click.
+                  </p>
+                </div>
+              )}
             </div>
             <div
               className={`absolute inset-0 ${centerView === "watch" ? "z-10 opacity-100" : "pointer-events-none z-0 opacity-0"}`}

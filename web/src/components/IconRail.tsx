@@ -12,11 +12,24 @@ function RailButton({
   active?: boolean;
   onClick?: () => void;
 }) {
+  // A button with no handler isn't interactive — render it as a static indicator so it
+  // doesn't look clickable (the "Feed" marker for the always-present center column).
+  if (!onClick) {
+    return (
+      <div
+        title={label}
+        className={`flex w-full flex-col items-center gap-1 rounded-lg py-2 ${active ? "bg-elevated text-fg" : "text-fg-dim"}`}
+      >
+        <Icon size={18} strokeWidth={1.75} />
+        <span className="text-[9px] font-semibold leading-none tracking-tight">{label}</span>
+      </div>
+    );
+  }
   return (
     <button
       onClick={onClick}
       aria-label={label}
-      aria-pressed={onClick ? !!active : undefined}
+      aria-pressed={!!active}
       title={label}
       className={`flex w-full flex-col items-center gap-1 rounded-lg py-2 outline-none transition focus-visible:ring-2 focus-visible:ring-accent/50 ${
         active ? "bg-elevated text-fg" : "text-fg-dim hover:bg-elevated/60 hover:text-fg"

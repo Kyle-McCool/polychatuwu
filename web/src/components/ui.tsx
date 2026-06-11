@@ -225,7 +225,7 @@ export function EmptyState({
 }) {
   return (
     <div className={`flex flex-col items-center gap-2 px-3 py-6 text-center ${className}`}>
-      <Mascot size={size} className="opacity-90 drop-shadow-[0_4px_16px_rgba(46,92,255,0.25)]" />
+      <Mascot size={size} className="opacity-80" />
       <p className="max-w-[15rem] font-mono text-[11px] leading-relaxed text-fg-muted">{children}</p>
     </div>
   );
