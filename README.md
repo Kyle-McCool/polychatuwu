@@ -82,6 +82,7 @@ X       (Playwright) ─┘                            + live prices, Polymarket
 
 * `server/` is Node and TypeScript, run directly with `tsx` (no build step)
 * `web/` is Vite, React and Tailwind v4
+* `npm test -w web` runs the unit suite over the core logic (the hype scoring + clip guards, the moderation classifier, sentiment)
 
 ## Honest status
 
