@@ -1,10 +1,24 @@
 # Market Bubble
 
-One screen for live crypto streaming. Every chat (Twitch, Kick, X) merged into a single feed, a market terminal beside it (live prices, Polymarket odds, a crypto newswire), and a broadcast overlay you drop straight into OBS. No API keys, no logins, no paid services.
+### Is chat smarter than the market? Market Bubble keeps score.
 
-Its signature feature, **Crowd vs Market**, scores chat's live YES/NO read against real Polymarket odds and keeps a running record of how often chat front-ran the market.
+One screen for live crypto streaming: every chat (Twitch, Kick, X) merged into a single feed, a Polymarket and price terminal beside it, and a broadcast overlay you drop straight into OBS. No API keys, no logins, no paid services. Clone it and run.
+
+Its signature feature, **Crowd vs Market**, scores chat's live YES/NO read against real Polymarket odds, then re-checks the market to see if it moved chat's way, and keeps a running record of how often chat front-ran the market on a scorebug your audience sees on stream.
 
 Built for the Market Bubble Vibe Code Challenge.
+
+## 60-second tour (for judges)
+
+```bash
+npm install && npm run dev      # then open http://localhost:5173
+```
+
+1. **Channels tab**, click **FaZe Banks** (pinned first) to pull a live chat in one click.
+2. Watch the **center candle**, a real multi-signal *chat hype* score, not raw message rate.
+3. **Bet tab**, a top Polymarket market auto-loads. Hit **Ask chat**, chat votes YES/NO and we score the crowd against the market's live odds.
+4. **Desk, Mod tab**, the moderation queue grading messages by severity with one-paste ban/timeout commands.
+5. Drop `http://localhost:5173/overlay` into OBS as a Browser source for the broadcast layer (lower-third, the live Crowd-vs-Market scorebug, news toasts).
 
 ## Highlights
 
