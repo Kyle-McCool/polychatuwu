@@ -4,7 +4,7 @@
 
 One screen for live crypto streaming: every chat (Twitch, Kick, X) merged into a single feed, a Polymarket and price terminal beside it, and a broadcast overlay you drop straight into OBS. No API keys, no logins, no paid services. Clone it and run.
 
-Its signature feature, **Crowd vs Market**, scores chat's live YES/NO read against real Polymarket odds, then re-checks the market to see if it moved chat's way, and keeps a running record of how often chat front-ran the market on a scorebug your audience sees on stream.
+Its signature feature, **Crowd vs Market**, scores chat's live YES/NO read against real Polymarket odds, then re-checks the market to see whether it moved chat's way, and keeps a running record of how often it does on a scorebug your audience sees on stream.
 
 Built for the Market Bubble Vibe Code Challenge.
 
@@ -22,7 +22,7 @@ npm install && npm run dev      # then open http://localhost:5173
 
 ## Highlights
 
-* **Crowd vs Market** — chat's live sentiment against real Polymarket odds, with a persisted record of how often chat front-ran the market and an on-air scoreboard for the overlay.
+* **Crowd vs Market** — chat's live sentiment against real Polymarket odds, with a persisted record of how often the market moved chat's way and an on-air scoreboard for the overlay.
 * **Pro moderation** — a context-aware classifier grades slurs, threats, doxxing, scams, and spam by severity, with one-click Timeout/Ban that copy the native chat command to paste (no login needed).
 * **Broadcast graphics** — a serif "NOW DISCUSSING" lower-third with guest name plates, plus a one-click stream-recap card built to share on X.
 * **Real emotes** — Twitch, 7TV, BTTV, and FFZ all render inline in the merged feed.

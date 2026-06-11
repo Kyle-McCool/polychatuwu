@@ -61,10 +61,10 @@ export type OverlayFeature = "index" | "candle" | "market" | "chat" | "chatters"
 // the audience sees the on-air scoreboard (the dashboard owns the record in localStorage;
 // the OBS overlay is a separate browser, so it can only get this through the server relay).
 export interface CrowdScore {
-  chatWins: number; // rounds where chat's call front-ran the market
-  marketWins: number; // rounds where the market went the other way
+  chatWins: number; // rounds where the market later moved toward chat's call
+  marketWins: number; // rounds where the market moved the other way
   resolved: number; // total resolved calls
-  winRate: number; // 0..100, how often chat led
+  winRate: number; // 0..100, how often the market moved chat's way
   streak: number; // current chat-led streak
 }
 

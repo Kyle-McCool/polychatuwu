@@ -186,7 +186,7 @@ export function RecapCard({ messages, channel, onClose }: { messages: ChatMessag
           ctx.font = "600 24px 'Inter', sans-serif";
           ctx.fillStyle = "#b3afa4";
           ctx.fillText(
-            `chat led the market ${recap.record.winRate}% of ${recap.record.resolved} resolved calls`,
+            `the market moved chat's way ${recap.record.winRate}% of ${recap.record.resolved} calls`,
             56,
             300,
           );

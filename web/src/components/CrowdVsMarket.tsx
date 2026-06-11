@@ -223,7 +223,7 @@ export function CrowdVsMarket({
   const marketYes = round ? round.marketStart : featured?.yesPct ?? null;
   const spread = chatYes != null && marketYes != null ? chatYes - marketYes : null;
   const last = snaps[0];
-  // aggregate track record (persisted): how often chat's call led the market
+  // aggregate track record (persisted): how often the market later moved toward chat's call
   const resolved = record.length;
   const chatWins = record.reduce((a, r) => a + (r.led ? 1 : 0), 0);
   const marketWins = resolved - chatWins;
@@ -275,11 +275,11 @@ export function CrowdVsMarket({
                 )}
               </div>
 
-              {/* HERO — the chat-edge number (the quotable stat: chat beat the market X% of calls) */}
+              {/* HERO — the headline number: how often the market later moved chat's way */}
               <div className="mt-2 text-center">
                 <div className="font-mono text-[34px] font-black leading-none tabular-nums" style={{ color: ACCENT }}>{v.winRate}%</div>
                 <div className="mt-1 font-mono text-[9px] uppercase tracking-[0.12em] text-fg-muted">
-                  of {v.resolved} calls, chat front-ran the market
+                  of {v.resolved} calls, the market moved chat's way
                 </div>
               </div>
 
@@ -457,8 +457,8 @@ export function CrowdVsMarket({
         )}
 
         <p className="mt-2 font-mono text-[9px] leading-relaxed text-fg-muted">
-          live crowd poll · 1 vote/user, bots filtered · the market is money-weighted, chat isn't · "chat led" = the
-          market later moved toward chat's call
+          live crowd poll · 1 vote/user, bots filtered · the market is money-weighted, chat isn't · the record counts
+          rounds where the market later moved toward chat's call, a short-term directional read, not proven skill
         </p>
       </div>
     </section>

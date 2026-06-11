@@ -124,7 +124,7 @@ export function ShareCard({ moment, onClose }: { moment: ShareMoment; onClose: (
       const ahead = spread >= 0;
       ctx.fillStyle = ahead ? ACCENT : PM_BLUE;
       ctx.fillText(
-        `CHAT IS ${Math.abs(spread)} PTS ${ahead ? "AHEAD OF" : "BEHIND"} THE MARKET`,
+        `CHAT IS ${Math.abs(spread)} PTS ${ahead ? "MORE BULLISH" : "LESS BULLISH"} THAN THE MARKET`,
         W / 2,
         baseY + 210,
       );

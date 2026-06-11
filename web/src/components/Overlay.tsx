@@ -522,8 +522,8 @@ function TopChatters({ messages }: { messages: ChatMessage[] }) {
 }
 
 // On-air Crowd-vs-Market scorebug — the persisted track record relayed from the dashboard.
-// This is the signature differentiator made visible to the audience: how often chat's call
-// front-ran the market. Sits in the top data strip, broadcast scorebug style.
+// This is the signature differentiator made visible to the audience: how often the market
+// later moved chat's way. Sits in the top data strip, broadcast scorebug style.
 function OverlayScoreboard({ score }: { score: CrowdScore }) {
   return (
     <span className="flex items-center gap-1.5">
@@ -531,7 +531,7 @@ function OverlayScoreboard({ score }: { score: CrowdScore }) {
       <span className="font-bold tabular-nums" style={{ color: CROWD }}>{score.chatWins}</span>
       <span className="text-white/30">-</span>
       <span className="font-bold tabular-nums" style={{ color: PM_BLUE }}>{score.marketWins}</span>
-      <span className="text-white/70">chat led {score.winRate}%</span>
+      <span className="text-white/70">{score.winRate}% chat's way</span>
       {score.streak >= 3 && <span className="font-bold text-accent">{score.streak} run</span>}
     </span>
   );
