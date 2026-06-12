@@ -1,7 +1,8 @@
 import { useRef, useState, type ReactNode } from "react";
-import { MonitorPlay, Captions } from "lucide-react";
+import { MonitorPlay, Captions, Tv, Copy, Check, ExternalLink } from "lucide-react";
 import type { OverlayConfig, OverlayFeature } from "../lib/types";
-import { Switch, Input } from "./ui";
+import { usePersisted } from "../hooks/usePersisted";
+import { Switch, Input, SegmentedControl, Button } from "./ui";
 
 const FEATURES: { key: OverlayFeature; label: string }[] = [
   { key: "index", label: "Chat Hype / Mood bar" },
@@ -20,6 +21,83 @@ const FEATURES: { key: OverlayFeature; label: string }[] = [
 function Title({ children }: { children: ReactNode }) {
   return (
     <h3 className="mb-2 px-1 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-fg-muted">{children}</h3>
+  );
+}
+
+/**
+ * Add-to-OBS helper: pick how the video works (composite your own game/cam, or show a connected
+ * stream in the frame), copy the right overlay URL for an OBS Browser source, and follow 3 steps.
+ * The overlay is read-only, so the plain URL works with no key.
+ */
+function ObsSetup() {
+  const [ownVideo, setOwnVideo] = usePersisted("tape.obsOwnVideo", false);
+  const [copied, setCopied] = useState(false);
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const url = `${origin}/overlay${ownVideo ? "?novideo" : ""}`;
+  function copy() {
+    navigator.clipboard?.writeText(url).then(
+      () => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1400);
+      },
+      () => {},
+    );
+  }
+  const steps: ReactNode[] = [
+    <>In OBS, add a <span className="text-fg">Browser</span> source.</>,
+    <>Paste the URL above and set the size to <span className="text-fg">1920 × 1080</span>.</>,
+    <>Leave the background transparent and place it over your scene.</>,
+  ];
+  return (
+    <div className="mb-4 rounded-lg border border-line bg-elevated/30 p-3">
+      <Title>
+        <span className="flex items-center gap-1.5">
+          <Tv size={11} /> Add to OBS
+        </span>
+      </Title>
+
+      <SegmentedControl
+        className="w-full"
+        value={ownVideo ? "own" : "frame"}
+        onChange={(v) => setOwnVideo(v === "own")}
+        options={[
+          { value: "frame", label: "Show a stream", title: "Embed a connected stream inside the broadcast frame" },
+          { value: "own", label: "My own video", title: "Transparent center so you composite your game or cam in OBS" },
+        ]}
+      />
+      <p className="mt-1.5 px-0.5 font-mono text-[9px] leading-relaxed text-fg-muted">
+        {ownVideo
+          ? "transparent center, so your game or cam shows through. the widgets float over your OBS scene."
+          : "a connected stream shows inside the frame. good for a commentary or reaction setup."}
+      </p>
+
+      <div className="mt-2 flex items-center gap-1.5">
+        <code className="min-w-0 flex-1 truncate rounded-md border border-line bg-base/60 px-2 py-1.5 font-mono text-[11px] text-fg-dim">{url}</code>
+        <Button variant="primary" size="sm" onClick={copy} icon={copied ? <Check size={13} /> : <Copy size={13} />}>
+          {copied ? "Copied" : "Copy"}
+        </Button>
+      </div>
+
+      <ol className="mt-2.5 flex flex-col gap-1 px-0.5">
+        {steps.map((step, i) => (
+          <li key={i} className="flex items-start gap-1.5 font-mono text-[10px] leading-relaxed text-fg-muted">
+            <span className="mt-px flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-accent/15 text-[8px] font-bold text-accent">
+              {i + 1}
+            </span>
+            <span>{step}</span>
+          </li>
+        ))}
+      </ol>
+
+      <a
+        href={url}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-2 inline-flex items-center gap-1 font-mono text-[10px] text-accent outline-none hover:underline focus-visible:ring-2 focus-visible:ring-accent/50"
+      >
+        <ExternalLink size={11} /> preview the overlay
+      </a>
+    </div>
   );
 }
 
@@ -46,6 +124,8 @@ export function OverlayControls({ config, onChange }: { config: OverlayConfig; o
 
   return (
     <section>
+      <ObsSetup />
+
       <Title>
         <span className="flex items-center gap-1.5">
           <MonitorPlay size={11} /> Overlay: what chat sees
