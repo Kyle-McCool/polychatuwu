@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Brain, Users, SlidersHorizontal, Radio, HelpCircle, UserPlus } from "lucide-react";
-import type { ChatMessage, NewsItem, PriceItem } from "../lib/types";
+import { Brain, Users, SlidersHorizontal, Radio, HelpCircle, UserPlus, Star, Check } from "lucide-react";
+import type { ChatMessage, NewsItem, PriceItem, Platform } from "../lib/types";
+import { PlatformIcon } from "./ui";
 import { usePersisted } from "../hooks/usePersisted";
 import { StreamerDesk } from "./StreamerDesk";
 import { AttentionDesk } from "./AttentionDesk";
@@ -254,18 +255,22 @@ function CoinSentiment({
   );
 }
 
-// First-time chatters this session — greet them. Tracks users seen at mount as the
-// baseline (so the backlog is not flagged), then collects genuinely-new names. Lives
-// under Top chatters in the Chatters tab.
-// New chatters this session, with persistent memory layered on: a ★ marks someone the
-// streamer has seen in a PAST stream (a returning regular) vs a genuine first-timer with
-// no mark. Memory is local + keyless (see lib/regulars.ts).
+type NewChatter = { user: string; ts: number; returning: boolean; platform: Platform };
+
+/**
+ * New chatters this session, the highest-retention surface: greeting a first-timer by name and
+ * welcoming back a regular is what turns a viewer into a follower. Split into two scannable
+ * groups, REGULARS BACK (a ★, seen in a past stream via the keyless local memory in regulars.ts)
+ * and NEW FACES (genuine first-timers, with their platform). Click any chip to copy "@name" so
+ * you can greet them in one move.
+ */
 function FirstTimeChatters({ messages }: { messages: ChatMessage[] }) {
   const msgsRef = useRef(messages);
   msgsRef.current = messages;
   const known = useRef<Set<string> | null>(null);
-  const fresh = useRef<{ user: string; ts: number; returning: boolean }[]>([]);
-  const [list, setList] = useState<{ user: string; ts: number; returning: boolean }[]>([]);
+  const fresh = useRef<NewChatter[]>([]);
+  const [list, setList] = useState<NewChatter[]>([]);
+  const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => {
     const tick = () => {
@@ -278,39 +283,83 @@ function FirstTimeChatters({ messages }: { messages: ChatMessage[] }) {
           seen.add(m.user);
           const returning = isReturning(m.user); // seen them in a past session?
           rememberUser(m.user); // remember for next time
-          fresh.current.push({ user: m.user, ts: m.ts, returning });
+          fresh.current.push({ user: m.user, ts: m.ts, returning, platform: m.platform });
         }
       }
       fresh.current = fresh.current.filter((c) => now - c.ts < 5 * 60000).slice(-40);
-      setList([...fresh.current].reverse().slice(0, 24));
+      setList([...fresh.current].reverse().slice(0, 30));
     };
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, []);
 
-  const regulars = list.filter((c) => c.returning).length;
+  function greet(user: string) {
+    navigator.clipboard?.writeText("@" + user.replace(/^@/, "")).then(
+      () => {
+        setCopied(user);
+        setTimeout(() => setCopied(null), 1100);
+      },
+      () => {},
+    );
+  }
+
+  const regulars = list.filter((c) => c.returning);
+  const newcomers = list.filter((c) => !c.returning);
+
+  const chip = (c: NewChatter) => (
+    <button
+      key={c.user + c.ts}
+      onClick={() => greet(c.user)}
+      title={`Copy @${c.user.replace(/^@/, "")} to greet them`}
+      className={`group flex items-center gap-1.5 rounded-full border px-2 py-1 text-[11px] outline-none transition active:scale-95 focus-visible:ring-2 focus-visible:ring-accent/50 ${
+        c.returning
+          ? "border-accent/40 bg-accent/[0.08] hover:bg-accent/[0.14]"
+          : "border-line bg-elevated/50 hover:border-fg-muted/40 hover:bg-elevated"
+      }`}
+    >
+      {copied === c.user ? (
+        <Check size={10} className="shrink-0 text-pos" />
+      ) : c.returning ? (
+        <Star size={9} className="shrink-0 text-accent" />
+      ) : (
+        <PlatformIcon platform={c.platform} size={10} />
+      )}
+      <span className="font-mono" style={{ color: userColor(c.user) }}>
+        {c.user}
+      </span>
+    </button>
+  );
 
   return (
     <section>
       <h3 className="mb-2 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-fg-muted">
         <UserPlus size={12} /> New chatters {list.length > 0 && <span className="text-pos">· {list.length}</span>}
-        {regulars > 0 && <span className="text-fg-muted normal-case tracking-normal">· {regulars} ★ regulars back</span>}
       </h3>
-      <div className="flex flex-wrap gap-1">
-        {list.length === 0 && <p className="px-1 font-mono text-[10px] text-fg-muted">none yet this session</p>}
-        {list.map((c) => (
-          <span
-            key={c.user + c.ts}
-            title={c.returning ? "returning regular" : "first time you've seen them"}
-            className="rounded-full border border-line bg-elevated/50 px-2 py-0.5 font-mono text-[11px]"
-            style={{ color: userColor(c.user) }}
-          >
-            {c.returning && <span className="mr-0.5 text-accent">★</span>}
-            {c.user}
-          </span>
-        ))}
-      </div>
+
+      {list.length === 0 && (
+        <p className="px-1 font-mono text-[10px] leading-relaxed text-fg-muted">
+          new faces show up here as they say their first words. click one to copy a greeting.
+        </p>
+      )}
+
+      {regulars.length > 0 && (
+        <div className="mb-2.5">
+          <p className="mb-1 px-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-accent">
+            ★ {regulars.length} regular{regulars.length === 1 ? "" : "s"} back
+          </p>
+          <div className="flex flex-wrap gap-1">{regulars.map(chip)}</div>
+        </div>
+      )}
+
+      {newcomers.length > 0 && (
+        <div>
+          {regulars.length > 0 && (
+            <p className="mb-1 px-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-fg-muted">new faces</p>
+          )}
+          <div className="flex flex-wrap gap-1">{newcomers.map(chip)}</div>
+        </div>
+      )}
     </section>
   );
 }
