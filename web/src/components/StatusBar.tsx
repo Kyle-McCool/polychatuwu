@@ -4,6 +4,7 @@ import { channelLabel } from "../lib/parseChannel";
 import { PlatformIcon } from "./ui";
 import { ThemeToggle } from "./ThemeToggle";
 import { useStable } from "../hooks/useStable";
+import { usePersisted } from "../hooks/usePersisted";
 
 const DOT: Record<string, string> = {
   live: "var(--color-pos)",
@@ -21,6 +22,9 @@ export function StatusBar({
   connected: boolean;
 }) {
   const stableConnected = useStable(connected);
+  // open the SAME overlay the streamer picked in the Overlay tab's "Add to OBS" mode
+  const [ownVideo] = usePersisted("tape.obsOwnVideo", false);
+  const overlayUrl = `/overlay${ownVideo ? "?novideo" : ""}`;
   return (
     <header className="flex items-center gap-3 border-b border-line bg-base/70 px-3 py-2 backdrop-blur-md">
       <span className="flex items-center gap-1.5 pr-1">
@@ -65,9 +69,10 @@ export function StatusBar({
         </div>
         <ThemeToggle />
         <a
-          href="/overlay"
+          href={overlayUrl}
           target="_blank"
           rel="noreferrer"
+          title={ownVideo ? "Open overlay (your own video mode)" : "Open overlay (stream in frame)"}
           className="inline-flex h-8 items-center gap-1.5 rounded-md border border-line bg-elevated/80 px-2.5 text-xs font-medium text-fg outline-none transition hover:bg-overlay focus-visible:ring-2 focus-visible:ring-accent/50"
         >
           <ExternalLink size={13} /> Overlay

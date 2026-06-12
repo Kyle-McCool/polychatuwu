@@ -22,7 +22,33 @@ export function usePersisted<T>(key: string, initial: T): [T, Dispatch<SetStateA
     } catch {
       /* ignore quota / private mode */
     }
+    // storage events only fire in OTHER tabs, so signal same-tab instances of this key too
+    try {
+      window.dispatchEvent(new CustomEvent(`persist:${key}`, { detail: value }));
+    } catch {
+      /* ignore */
+    }
   }, [key, value]);
+
+  // keep instances of the same key in sync: same tab (custom event) + other tabs (storage)
+  useEffect(() => {
+    const apply = (v: T) => setValue((cur) => (JSON.stringify(cur) === JSON.stringify(v) ? cur : v));
+    const onCustom = (e: Event) => apply((e as CustomEvent).detail as T);
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== key || e.newValue == null) return;
+      try {
+        apply(JSON.parse(e.newValue) as T);
+      } catch {
+        /* ignore */
+      }
+    };
+    window.addEventListener(`persist:${key}`, onCustom);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(`persist:${key}`, onCustom);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, [key]);
 
   return [value, setValue];
 }
