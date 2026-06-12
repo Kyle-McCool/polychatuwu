@@ -11,6 +11,7 @@ import { GifPicker } from "./GifPicker";
 import { PolymarketWire } from "./CryptoWire";
 import { Newswire } from "./Newswire";
 import { sentimentOf, MIN_SENTIMENT_SAMPLE } from "../lib/sentiment";
+import { hypeNow } from "../lib/hype";
 import { isBot, classifyMessage } from "../lib/moderation";
 import { isReturning, rememberUser } from "../lib/regulars";
 import { ModDesk } from "./ModDesk";
@@ -19,6 +20,30 @@ function userColor(user: string): string {
   let h = 0;
   for (let i = 0; i < user.length; i += 1) h = (h * 31 + user.charCodeAt(i)) % 360;
   return `hsl(${h} var(--name-s) var(--name-l))`; // muted, theme-tuned (see index.css)
+}
+
+type Badge = { count?: number; dot?: boolean; tone?: "accent" | "neg"; pulse?: boolean; inline?: boolean };
+
+/**
+ * Notification indicator on a tab. A count pill when the number matters, or a bare dot for an
+ * ambient "something new here". Accent (the one flat brand accent) = new activity worth a glance;
+ * neg (red, gently pulsing) = act now (moderation). Renders nothing when there's nothing to show.
+ */
+function TabBadge({ count = 0, dot = false, tone = "accent", pulse = false, inline = false }: Badge) {
+  if (!dot && count <= 0) return null;
+  const ring = pulse ? "animate-pulse" : "";
+  const bg = tone === "neg" ? "bg-neg" : "bg-accent";
+  if (dot) {
+    const place = inline ? "ml-1 inline-block align-middle" : "absolute -right-0.5 -top-0.5";
+    return <span className={`${place} h-2 w-2 rounded-full ${bg} ${ring}`} aria-hidden />;
+  }
+  const place = inline ? "ml-1 inline-flex align-middle" : "absolute -right-1 -top-1 inline-flex";
+  const txt = tone === "neg" ? "text-white" : "text-accent-ink";
+  return (
+    <span className={`${place} h-3.5 min-w-3.5 items-center justify-center rounded-full px-0.5 text-[8px] font-bold tabular-nums ${bg} ${txt} ${ring}`}>
+      {count > 9 ? "9+" : count}
+    </span>
+  );
 }
 
 /**
@@ -45,18 +70,13 @@ export function RightRail({
   const [wireSub, setWireSub] = usePersisted<"news" | "poly" | "coins">("tape.wireSub", "news");
   const [deskSub, setDeskSub] = usePersisted<"fx" | "pulse" | "mod">("tape.deskSub", "fx");
 
-  const { coins, traders, flagged } = useMemo(() => {
+  const { coins, traders } = useMemo(() => {
     const now = Date.now();
     const coinStats: Record<string, { mentions: number; bull: number; bear: number }> = {};
     const traderStats: Record<string, { msgs: number; tags: number; whale: number }> = {};
-    let flagged = 0; // recent messages needing moderation (drives the Desk tab badge)
 
     for (const m of messages) {
       if (isBot(m.user)) continue;
-      if (now - m.ts < 12 * 60000) {
-        const f = classifyMessage(m.text);
-        if (f && f.level >= 2) flagged += 1; // badge tracks actionable flags, not caps/spam noise
-      }
       const ts = (traderStats[m.user] ||= { msgs: 0, tags: 0, whale: 0 });
       ts.msgs += 1;
       if (m.cashtags?.length) ts.tags += m.cashtags.length;
@@ -81,10 +101,87 @@ export function RightRail({
       .sort((a, b) => b[1] - a[1])
       .slice(0, 6);
 
-    return { coins, traders, flagged };
+    return { coins, traders };
   }, [messages]);
 
-  const tabBtn = (id: "ask" | "market" | "desk" | "wire", label: string, Icon: typeof Brain, badge = 0) => (
+  // ── Unseen-activity badges ───────────────────────────────────────────────
+  // Each tab/subtab flags when something the streamer cares about arrived since they last looked
+  // there, so they know to check without watching it:  Ask = new subs/raids/tips + questions ·
+  // Chatters = new first-time chatters to greet · Desk = moderation flags (urgent) + a dot when
+  // chat is spiking · Wire = fresh newswire items. "Seen" is tracked per leaf (tab or tab:subtab)
+  // and reset the moment you navigate away; a badge counts only what's newer than that, and the
+  // pre-load backlog is ignored (baseline = app start) so you don't open to a wall of 9+.
+  const msgsRef = useRef(messages);
+  msgsRef.current = messages;
+  const newsRef = useRef(news);
+  newsRef.current = news;
+  const appStart = useRef(Date.now());
+  const [seen, setSeen] = useState<Record<string, number>>({});
+  const seenRef = useRef(seen);
+  seenRef.current = seen;
+  const knownUsers = useRef<Set<string> | null>(null);
+  const newFaces = useRef<number[]>([]); // first-message timestamps of genuinely new chatters
+  const [counts, setCounts] = useState({ ask: 0, market: 0, mod: 0, news: 0, spiking: false });
+
+  useEffect(() => {
+    const tick = () => {
+      const now = Date.now();
+      const msgs = msgsRef.current;
+      const base = (k: string) => Math.max(seenRef.current[k] ?? 0, appStart.current);
+      const bAsk = base("ask");
+      const bMarket = base("market");
+      const bMod = base("desk:mod");
+      const bNews = base("wire:news");
+
+      if (knownUsers.current === null) knownUsers.current = new Set(msgs.map((m) => m.user));
+      const known = knownUsers.current;
+
+      let ask = 0;
+      let mod = 0;
+      for (const m of msgs) {
+        if (isBot(m.user)) continue;
+        if (now - m.ts < 60000 && !known.has(m.user)) {
+          known.add(m.user);
+          newFaces.current.push(m.ts);
+        }
+        if (m.ts > bAsk && (m.event || (m.amount && m.amount > 0) || (m.text.includes("?") && m.text.trim().length >= 8))) {
+          ask += 1;
+        }
+        if (m.ts > bMod && now - m.ts < 15 * 60000) {
+          const f = classifyMessage(m.text);
+          if (f && f.level >= 2) mod += 1; // actionable flags only, not caps/spam noise
+        }
+      }
+      newFaces.current = newFaces.current.filter((t) => now - t < 30 * 60000).slice(-300);
+
+      const market = newFaces.current.filter((t) => t > bMarket).length;
+      const news = newsRef.current.filter((n) => n.ts > bNews).length;
+      const hy = hypeNow(msgs, now);
+      const spiking = hy.clip || hy.intensity === "spiking";
+
+      setCounts((p) =>
+        p.ask === ask && p.market === market && p.mod === mod && p.news === news && p.spiking === spiking
+          ? p
+          : { ask, market, mod, news, spiking },
+      );
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // reset a leaf's "seen" baseline to now the moment you navigate away from it
+  const activeLeaf = tab === "desk" ? `desk:${deskSub}` : tab === "wire" ? `wire:${wireSub}` : tab;
+  const prevLeaf = useRef(activeLeaf);
+  useEffect(() => {
+    if (prevLeaf.current !== activeLeaf) {
+      const left = prevLeaf.current;
+      setSeen((s) => ({ ...s, [left]: Date.now() }));
+      prevLeaf.current = activeLeaf;
+    }
+  }, [activeLeaf]);
+
+  const tabBtn = (id: "ask" | "market" | "desk" | "wire", label: string, Icon: typeof Brain, badge?: Badge) => (
     <button
       onClick={() => setTab(id)}
       role="tab"
@@ -94,21 +191,22 @@ export function RightRail({
       }`}
     >
       <Icon size={12} /> {label}
-      {badge > 0 && tab !== id && (
-        <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-neg px-0.5 text-[8px] font-bold text-white">
-          {badge > 9 ? "9+" : badge}
-        </span>
-      )}
+      {tab !== id && badge && <TabBadge {...badge} />}
     </button>
   );
 
   return (
     <aside className="flex h-full min-h-0 min-w-0 flex-col bg-transparent">
       <div role="tablist" aria-label="Right panel" className="mx-3 mb-3 mt-3 flex shrink-0 items-center justify-between gap-1 rounded-lg border border-line bg-elevated/40 p-1">
-        {tabBtn("ask", "Ask", HelpCircle)}
-        {tabBtn("market", "Chatters", Users)}
-        {tabBtn("desk", "Desk", SlidersHorizontal)}
-        {tabBtn("wire", "Wire", Radio)}
+        {tabBtn("ask", "Ask", HelpCircle, { count: counts.ask })}
+        {tabBtn("market", "Chatters", Users, { count: counts.market })}
+        {tabBtn(
+          "desk",
+          "Desk",
+          SlidersHorizontal,
+          counts.mod > 0 ? { count: counts.mod, tone: "neg", pulse: true } : counts.spiking ? { dot: true } : undefined,
+        )}
+        {tabBtn("wire", "Wire", Radio, { count: counts.news })}
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-3">
@@ -143,11 +241,8 @@ export function RightRail({
               }`}
             >
               {label}
-              {id === "mod" && flagged > 0 && (
-                <span className="ml-1 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-neg px-0.5 align-middle text-[8px] font-bold text-white">
-                  {flagged > 9 ? "9+" : flagged}
-                </span>
-              )}
+              {id === "mod" && deskSub !== "mod" && <TabBadge inline count={counts.mod} tone="neg" pulse />}
+              {id === "pulse" && deskSub !== "pulse" && counts.spiking && <TabBadge inline dot />}
             </button>
           ))}
         </div>
@@ -182,6 +277,7 @@ export function RightRail({
               }`}
             >
               {label}
+              {id === "news" && wireSub !== "news" && <TabBadge inline count={counts.news} />}
             </button>
           ))}
         </div>
