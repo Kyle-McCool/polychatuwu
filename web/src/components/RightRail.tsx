@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Brain, Users, SlidersHorizontal, Radio, HelpCircle, UserPlus, Star, Check } from "lucide-react";
+import { Brain, Users, SlidersHorizontal, Radio, HelpCircle, UserPlus, Star, Check, Copy } from "lucide-react";
 import type { ChatMessage, NewsItem, PriceItem, Platform } from "../lib/types";
 import { fetchMarkets, type MarketCoin } from "../lib/coins";
 import { PlatformIcon, SearchInput } from "./ui";
@@ -395,29 +395,37 @@ function FirstTimeChatters({ messages }: { messages: ChatMessage[] }) {
   const regulars = list.filter((c) => c.returning);
   const newcomers = list.filter((c) => !c.returning);
 
-  const chip = (c: NewChatter) => (
+  const relTime = (ts: number): string => {
+    const s = Math.max(0, Math.round((Date.now() - ts) / 1000));
+    if (s < 10) return "now";
+    if (s < 60) return `${s}s`;
+    return `${Math.round(s / 60)}m`;
+  };
+
+  const Row = (c: NewChatter) => (
     <button
       key={c.user + c.ts}
       onClick={() => greet(c.user)}
       title={`Copy @${c.user.replace(/^@/, "")} to greet them`}
-      className={`group flex items-center gap-1.5 rounded-full border px-2 py-1 text-[11px] outline-none transition active:scale-95 focus-visible:ring-2 focus-visible:ring-accent/50 ${
-        c.returning
-          ? "border-accent/40 bg-accent/[0.08] hover:bg-accent/[0.14]"
-          : "border-line bg-elevated/50 hover:border-fg-muted/40 hover:bg-elevated"
+      className={`group flex items-center gap-2 rounded-md border px-2 py-1.5 text-left outline-none transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-accent/50 ${
+        c.returning ? "border-accent/30 bg-accent/[0.06] hover:bg-accent/[0.1]" : "border-line bg-elevated/40 hover:bg-elevated"
       }`}
     >
-      {copied === c.user ? (
-        <Check size={10} className="shrink-0 text-pos" />
-      ) : c.returning ? (
-        <Star size={9} className="shrink-0 text-accent" />
-      ) : (
-        <PlatformIcon platform={c.platform} size={10} />
-      )}
-      <span className="font-mono" style={{ color: userColor(c.user) }}>
+      {c.returning ? <Star size={12} className="shrink-0 text-accent" /> : <PlatformIcon platform={c.platform} size={12} />}
+      <span className="min-w-0 flex-1 truncate font-mono text-[12px] font-medium" style={{ color: userColor(c.user) }}>
         {c.user}
       </span>
+      <span className="shrink-0 font-mono text-[9px] tabular-nums text-fg-muted">{relTime(c.ts)}</span>
+      {copied === c.user ? (
+        <Check size={12} className="shrink-0 text-pos" />
+      ) : (
+        <Copy size={11} className="shrink-0 text-fg-muted opacity-0 transition group-hover:opacity-100" />
+      )}
     </button>
   );
+
+  const REG_CAP = 10;
+  const NEW_CAP = 12;
 
   return (
     <section>
@@ -432,11 +440,14 @@ function FirstTimeChatters({ messages }: { messages: ChatMessage[] }) {
       )}
 
       {regulars.length > 0 && (
-        <div className="mb-2.5">
+        <div className="mb-3">
           <p className="mb-1 px-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-accent">
             ★ {regulars.length} regular{regulars.length === 1 ? "" : "s"} back
           </p>
-          <div className="flex flex-wrap gap-1">{regulars.map(chip)}</div>
+          <div className="flex flex-col gap-1">{regulars.slice(0, REG_CAP).map(Row)}</div>
+          {regulars.length > REG_CAP && (
+            <p className="mt-1 px-0.5 font-mono text-[9px] text-fg-muted">+{regulars.length - REG_CAP} more</p>
+          )}
         </div>
       )}
 
@@ -445,7 +456,10 @@ function FirstTimeChatters({ messages }: { messages: ChatMessage[] }) {
           {regulars.length > 0 && (
             <p className="mb-1 px-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-fg-muted">new faces</p>
           )}
-          <div className="flex flex-wrap gap-1">{newcomers.map(chip)}</div>
+          <div className="flex flex-col gap-1">{newcomers.slice(0, NEW_CAP).map(Row)}</div>
+          {newcomers.length > NEW_CAP && (
+            <p className="mt-1 px-0.5 font-mono text-[9px] text-fg-muted">+{newcomers.length - NEW_CAP} more this session</p>
+          )}
         </div>
       )}
     </section>
