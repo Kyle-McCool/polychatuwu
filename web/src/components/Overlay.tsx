@@ -60,9 +60,16 @@ export function Overlay() {
   const msgsRef = useRef(visible);
   msgsRef.current = visible;
 
-  // the overlay sits on the stream — always dark, regardless of the app's theme choice
+  // the overlay sits on the stream (always dark, ignore the app theme) AND it is an OBS browser
+  // source, so the PAGE itself must be transparent — otherwise the dark body would cover the
+  // streamer's own video in ?novideo mode. Any solid backing is painted by the Stage instead,
+  // only when previewing (?solid) or embedding a stream in the frame.
   useEffect(() => {
     document.documentElement.classList.remove("light");
+    document.documentElement.style.background = "transparent";
+    document.body.style.background = "transparent";
+    const root = document.getElementById("root");
+    if (root) root.style.background = "transparent";
   }, []);
 
   const [idx, setIdx] = useState({ score: 2, perSec: 0, spiking: false, mood: 50, affect: "neutral" as Affect });
