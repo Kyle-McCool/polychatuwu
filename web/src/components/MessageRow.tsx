@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Coins } from "lucide-react";
+import { Coins, Star, Gift, Users } from "lucide-react";
 import type { ChatMessage } from "../lib/types";
 import { SRC_META } from "../lib/types";
 import { renderMessageText } from "../lib/renderMessage";
@@ -59,6 +59,37 @@ export const MessageRow = memo(function MessageRow({ m }: { m: ChatMessage }) {
           </span>
           <span className="mr-1 font-bold text-fg">{m.user}</span>
           <span className="break-words text-fg">{renderMessageText(m.text)}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Channel event (sub / resub / gift / raid) — the moments to shout out, promoted to a card
+  if (m.event) {
+    const ev = m.event;
+    const Icon = ev.kind === "raid" ? Users : ev.kind === "giftsub" ? Gift : Star;
+    const badge =
+      ev.kind === "raid"
+        ? `RAID${ev.count ? ` +${ev.count}` : ""}`
+        : ev.kind === "giftsub"
+          ? `GIFT${ev.count ? ` ×${ev.count}` : ""}`
+          : ev.kind === "resub"
+            ? "RESUB"
+            : "SUB";
+    return (
+      <div className="msg-in flash-in my-1.5 flex items-center gap-3 rounded-lg border border-accent/40 bg-accent/[0.08] px-3 py-2">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
+          <Icon size={15} strokeWidth={2.2} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="rounded bg-accent px-1.5 py-0.5 font-mono text-[10px] font-extrabold uppercase tracking-wider text-accent-ink">
+              {badge}
+            </span>
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-fg-muted">{src.label}</span>
+            <span className="ml-auto font-mono text-[11px] tabular-nums text-fg-muted">{time}</span>
+          </div>
+          <div className="mt-0.5 break-words text-[13px] font-medium text-fg">{m.text}</div>
         </div>
       </div>
     );

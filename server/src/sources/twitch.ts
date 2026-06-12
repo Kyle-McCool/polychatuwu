@@ -1,5 +1,52 @@
 import WebSocket from "ws";
-import type { ChatMessage, SourceStatus } from "../types";
+import type { ChatEvent, ChatMessage, SourceStatus } from "../types";
+
+// Map a Twitch USERNOTICE msg-id to our event kind (or null to ignore it).
+function eventKind(msgId: string): ChatEvent["kind"] | null {
+  switch (msgId) {
+    case "sub":
+      return "sub";
+    case "resub":
+      return "resub";
+    case "subgift":
+    case "anonsubgift":
+    case "submysterygift":
+    case "giftpaidupgrade":
+    case "anongiftpaidupgrade":
+    case "primepaidupgrade":
+      return "giftsub";
+    case "raid":
+      return "raid";
+    default:
+      return null;
+  }
+}
+
+/**
+ * Parse a Twitch USERNOTICE line into a chat event (sub / resub / gift / raid), or null if it
+ * is not an event we surface. The `system-msg` tag is Twitch's own ready-to-read line; the
+ * gifted-sub or raid count comes from msg-param-mass-gift-count / msg-param-viewerCount.
+ */
+export function parseUserNotice(
+  line: string,
+): { id: string; channel: string; user: string; color: string | null; text: string; ts: number; event: ChatEvent } | null {
+  const un = line.match(/^@(\S+) :tmi\.twitch\.tv USERNOTICE #(\S+)(?: :(.*))?$/);
+  if (!un) return null;
+  const t = parseTags(un[1]);
+  const kind = eventKind(t["msg-id"] || "");
+  const sys = (t["system-msg"] || "").trim();
+  if (!kind || !sys) return null;
+  const count = Number(t["msg-param-mass-gift-count"] || t["msg-param-viewerCount"] || "") || undefined;
+  return {
+    id: t["id"] || `tw_un_${t["tmi-sent-ts"] || Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    channel: un[2].trim(),
+    user: t["display-name"] || t["login"] || "",
+    color: t["color"] || null,
+    text: sys,
+    ts: t["tmi-sent-ts"] ? Number(t["tmi-sent-ts"]) : Date.now(),
+    event: { kind, text: sys, count },
+  };
+}
 
 const TWITCH_WS = "wss://irc-ws.chat.twitch.tv:443";
 
@@ -221,6 +268,13 @@ export class TwitchSource {
       if (joinIdx !== -1 && line.includes("justinfan")) {
         const ch = line.slice(joinIdx + 7).trim();
         if (ch) this.onStatus({ platform: "twitch", channel: ch, state: "live", detail: "joined" });
+        continue;
+      }
+      // USERNOTICE = subs, resubs, gift subs, raids — the celebratory events a streamer
+      // reacts to live. Keyless: anonymous IRC delivers these (no OAuth). See parseUserNotice.
+      if (line.includes(" USERNOTICE #")) {
+        const un = parseUserNotice(line);
+        if (un) this.onMessage({ platform: "twitch", badges: [], ...un });
         continue;
       }
       const m = line.match(/^(?:@(\S+) )?:(\w+)!\S+ PRIVMSG #(\S+) :(.*)$/);

@@ -1,5 +1,12 @@
 export type Platform = "twitch" | "kick" | "x" | "tape";
 
+// A celebratory channel event a streamer reacts to live (sub, resub, gift sub, raid).
+export interface ChatEvent {
+  kind: "sub" | "resub" | "giftsub" | "raid";
+  text: string;
+  count?: number; // gifted-sub count or raid viewer count, when known
+}
+
 export interface ChatMessage {
   id: string;
   platform: Platform;
@@ -12,6 +19,7 @@ export interface ChatMessage {
   amount?: number;
   cashtags?: string[];
   host?: boolean; // streamer/host reply (posted from the dashboard) — highlighted on overlay + feed
+  event?: ChatEvent; // sub / resub / gift / raid — surfaced for shout-outs
 }
 
 export interface SourceStatus {
