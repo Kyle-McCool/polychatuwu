@@ -17,13 +17,15 @@ import { isBot } from "./moderation";
 
 export type Affect = "funny" | "hype" | "rekt" | "shock" | "rage" | "neutral";
 
+// Muted "hue whisper" affect colors — same restrained register as the username hues, so the
+// pulse / vibe surfaces read on-brand instead of neon (low saturation, ~60% lightness).
 export const AFFECT_META: Record<Affect, { label: string; color: string }> = {
-  funny: { label: "funny", color: "#f2b33c" },
-  hype: { label: "hype", color: "#2fd39e" },
-  rekt: { label: "rekt", color: "#f0616d" },
-  shock: { label: "shock", color: "#3b8edf" },
-  rage: { label: "rage", color: "#ff8a3d" },
-  neutral: { label: "chatting", color: "#828d9c" },
+  funny: { label: "funny", color: "hsl(42 32% 62%)" },
+  hype: { label: "hype", color: "hsl(158 26% 56%)" },
+  rekt: { label: "rekt", color: "hsl(355 34% 64%)" },
+  shock: { label: "shock", color: "hsl(210 30% 64%)" },
+  rage: { label: "rage", color: "hsl(22 36% 60%)" },
+  neutral: { label: "chatting", color: "hsl(215 10% 56%)" },
 };
 
 // word-token → affect (lowercase, repeated chars collapsed before lookup)
