@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useChatSocket } from "../hooks/useChatSocket";
 import { Reactions } from "./Reactions";
 import { renderMessageText } from "../lib/renderMessage";
@@ -335,15 +335,47 @@ export function Overlay() {
 }
 
 /**
- * Fluid full-viewport surface. Fills any window / OBS source edge-to-edge and
- * lets the layout reflow (real flexbox, no fixed 1920×1080 uniform scaling), so
- * nothing is ever clipped or letterboxed regardless of the screen. Transparent
- * for OBS; `?solid` paints the base for previewing.
+ * Broadcast stage. The whole overlay is laid out on a FIXED 1920×1080 surface, so
+ * every position, font size, and the 16:9 video window stay pixel exact — then the
+ * stage is uniformly scaled to fit whatever size OBS gives the browser source
+ * (the 800×600 default, 1280×720, 1920×1080, anything). At the usual 16:9 source it
+ * fills edge to edge with no clipping; an off-ratio source just gets transparent
+ * bars (which show the scene/video behind in OBS). Without this, the default 800px
+ * source clips the right rail. Transparent for OBS; `?solid` paints the base to preview.
  */
 function Stage({ children, solid }: { children: React.ReactNode; solid: boolean }) {
+  // Fit the fixed 1920×1080 design to the source. Guard the 0×0 window OBS/preview can briefly
+  // report at mount (Math.min(0/1920,…) = 0 would make the overlay invisible) by falling back to
+  // 1 until real dimensions arrive, and track size via both resize + ResizeObserver so a live
+  // source-resize is picked up reliably.
+  const fit = () => {
+    const w = window.innerWidth, h = window.innerHeight;
+    return w > 0 && h > 0 ? Math.min(w / 1920, h / 1080) : 1;
+  };
+  const [scale, setScale] = useState(() => (typeof window === "undefined" ? 1 : fit()));
+  useLayoutEffect(() => {
+    const apply = () => setScale(fit());
+    apply();
+    window.addEventListener("resize", apply);
+    const ro = new ResizeObserver(apply);
+    ro.observe(document.documentElement);
+    return () => {
+      window.removeEventListener("resize", apply);
+      ro.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // absolute-center + translate(-50%,-50%) before scaling: this centers correctly even though
+  // the 1920×1080 stage is bigger than the source viewport (grid/place-items won't center an
+  // oversized child). Default transform-origin (center) keeps it pinned to the viewport center.
   return (
-    <div className={`relative h-full w-full overflow-hidden text-white ${solid ? "bg-base" : "bg-transparent"}`}>
-      {children}
+    <div className="fixed inset-0 overflow-hidden">
+      <div
+        className={`absolute left-1/2 top-1/2 overflow-hidden text-white ${solid ? "bg-base" : "bg-transparent"}`}
+        style={{ width: 1920, height: 1080, transform: `translate(-50%, -50%) scale(${scale})` }}
+      >
+        {children}
+      </div>
     </div>
   );
 }
