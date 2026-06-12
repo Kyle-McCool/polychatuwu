@@ -46,8 +46,8 @@ function ObsSetup() {
   const steps: ReactNode[] = [
     <>In OBS, add a <span className="text-fg">Browser</span> source and paste the URL above.</>,
     <>
-      In its properties, set <span className="text-fg">Width 1920</span> and <span className="text-fg">Height 1080</span>
-      {" "}to match your canvas. It scales to fit any size, but 1920 × 1080 stays sharpest.
+      In its properties, set <span className="text-fg">Width</span> and <span className="text-fg">Height</span> to match
+      {" "}your canvas (usually <span className="text-fg">1920 × 1080</span>). It scales to fit any size.
     </>,
     <>Leave the background transparent and place it over your scene.</>,
   ];
