@@ -68,7 +68,7 @@ Use the Watch toggle in the top toolbar to choose which stream shows in the cent
 
 1. Add a Browser source in OBS.
 2. URL: `http://localhost:5173/overlay`
-3. Size: 1920 x 1080.
+3. Size: match your canvas (usually 1920 x 1080). It scales to fit any source size, so there is no dead space to fight.
 4. Leave the background transparent. The widgets float over your game or stream capture.
 
 The overlay embeds whichever channel you selected, so the real stream shows inside the frame automatically. If you would rather composite the video yourself in OBS, use `http://localhost:5173/overlay?novideo` to keep the center empty.
