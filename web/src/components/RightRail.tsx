@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Brain, Users, SlidersHorizontal, Radio, HelpCircle, UserPlus, Star, Check } from "lucide-react";
 import type { ChatMessage, NewsItem, PriceItem, Platform } from "../lib/types";
-import { PlatformIcon } from "./ui";
+import { fetchMarkets, type MarketCoin } from "../lib/coins";
+import { PlatformIcon, SearchInput } from "./ui";
 import { usePersisted } from "../hooks/usePersisted";
 import { StreamerDesk } from "./StreamerDesk";
 import { AttentionDesk } from "./AttentionDesk";
@@ -191,7 +192,7 @@ export function RightRail({
           <PolymarketWire />
         </div>
         <div className={wireSub === "coins" ? "" : "hidden"}>
-          <CoinSentiment prices={prices} coins={coins} />
+          <CoinSentiment coins={coins} />
         </div>
       </div>
       </div>
@@ -206,46 +207,133 @@ function fmtCoin(p: number): string {
   return p.toFixed(8).replace(/0+$/, "").replace(/\.$/, "");
 }
 
-// Live top coins (crypto + memecoins) with 24h change, plus chat's bull/bear read
-// layered on when the chat is actually talking about that coin. Always populated.
-function CoinSentiment({
-  prices,
-  coins,
-}: {
-  prices: PriceItem[];
-  coins: [string, { mentions: number; bull: number; bear: number }][];
-}) {
-  const sent = new Map(coins.map(([t, s]) => [t.toUpperCase(), s]));
-  const list = prices.filter((p) => p.kind !== "stock").slice(0, 14);
+// A compact 7-day price sparkline, color-coded by direction — the at-a-glance trend traders
+// expect next to the number (research-backed). Thinned to ~40 points so many rows stay crisp.
+function Sparkline({ points, up }: { points: number[]; up: boolean }) {
+  const w = 54;
+  const h = 18;
+  if (points.length < 2) return <svg width={w} height={h} className="shrink-0" />;
+  const stepN = Math.max(1, Math.floor(points.length / 40));
+  const pts = points.filter((_, i) => i % stepN === 0);
+  const min = Math.min(...pts);
+  const max = Math.max(...pts);
+  const range = max - min || 1;
+  const dx = w / (pts.length - 1);
+  const d = pts
+    .map((p, i) => `${i ? "L" : "M"}${(i * dx).toFixed(1)} ${(h - 1 - ((p - min) / range) * (h - 2)).toFixed(1)}`)
+    .join(" ");
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="shrink-0" aria-hidden>
+      <path d={d} fill="none" stroke={up ? "var(--color-pos)" : "var(--color-neg)"} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" opacity="0.95" />
+    </svg>
+  );
+}
+
+type CoinSort = "top" | "gainers" | "losers" | "buzz";
+type CoinTF = "ch1h" | "ch24h" | "ch7d";
+
+// Coins terminal: live market data (keyless CoinGecko markets) with sparklines, a 1h/24h/7d
+// timeframe, search any coin, and sort by Top / Gainers / Losers / chat Buzz. Chat's bull/bear
+// read layers on when chat is actually talking about a coin.
+function CoinSentiment({ coins }: { coins: [string, { mentions: number; bull: number; bear: number }][] }) {
+  const [markets, setMarkets] = useState<MarketCoin[]>([]);
+  const [q, setQ] = useState("");
+  const [sort, setSort] = usePersisted<CoinSort>("tape.coinSort", "top");
+  const [tf, setTf] = usePersisted<CoinTF>("tape.coinTf", "ch24h");
+
+  useEffect(() => {
+    let alive = true;
+    const load = () => fetchMarkets().then((m) => alive && m.length && setMarkets(m));
+    load();
+    const id = setInterval(load, 60000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, []);
+
+  const sent = useMemo(() => new Map(coins.map(([t, s]) => [t.toUpperCase(), s])), [coins]);
+
+  const rows = useMemo(() => {
+    const ql = q.trim().toUpperCase();
+    const list = ql ? markets.filter((c) => c.symbol.includes(ql) || c.name.toUpperCase().includes(ql)) : markets.slice();
+    const ch = (c: MarketCoin) => c[tf];
+    if (sort === "gainers") list.sort((a, b) => ch(b) - ch(a));
+    else if (sort === "losers") list.sort((a, b) => ch(a) - ch(b));
+    else if (sort === "buzz") list.sort((a, b) => (sent.get(b.symbol)?.mentions ?? 0) - (sent.get(a.symbol)?.mentions ?? 0) || b.mcap - a.mcap);
+    return list.slice(0, 25);
+  }, [markets, q, sort, tf, sent]);
+
+  const tfBtn = (k: CoinTF, label: string) => (
+    <button
+      key={k}
+      onClick={() => setTf(k)}
+      className={`rounded px-1 py-0.5 font-mono text-[9px] font-semibold uppercase outline-none transition active:scale-95 focus-visible:ring-2 focus-visible:ring-accent/50 ${
+        tf === k ? "bg-accent text-accent-ink" : "text-fg-muted hover:text-fg"
+      }`}
+    >
+      {label}
+    </button>
+  );
+
   return (
     <section>
-      <h3 className="mb-2 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-fg-muted">
-        <Brain size={12} /> Oracle · coins
-        {coins.length > 0 && <span className="text-accent">· chat live</span>}
-      </h3>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <h3 className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-fg-muted">
+          <Brain size={12} /> Oracle · coins {coins.length > 0 && <span className="text-accent">· chat live</span>}
+        </h3>
+        <div className="flex items-center gap-0.5 rounded-md border border-line bg-elevated/40 p-0.5">
+          {tfBtn("ch1h", "1h")}
+          {tfBtn("ch24h", "24h")}
+          {tfBtn("ch7d", "7d")}
+        </div>
+      </div>
+
+      <SearchInput value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search coins…" aria-label="Search coins" className="mb-2" />
+
+      <div className="mb-2 flex gap-0.5 rounded-md border border-line bg-elevated/40 p-0.5">
+        {(["top", "gainers", "losers", "buzz"] as CoinSort[]).map((k) => (
+          <button
+            key={k}
+            onClick={() => setSort(k)}
+            className={`flex-1 rounded px-1 py-1 font-mono text-[9px] font-semibold uppercase tracking-wide outline-none transition active:scale-95 focus-visible:ring-2 focus-visible:ring-accent/50 ${
+              sort === k ? "bg-accent text-accent-ink" : "text-fg-muted hover:text-fg"
+            }`}
+          >
+            {k}
+          </button>
+        ))}
+      </div>
+
       <div className="flex flex-col gap-1">
-        {list.length === 0 && <p className="px-1 font-mono text-[11px] text-fg-muted">loading coins…</p>}
-        {list.map((p) => {
-          const s = sent.get(p.symbol.toUpperCase());
-          const total = s ? s.bull + s.bear : 0;
-          const bullPct = total >= MIN_SENTIMENT_SAMPLE ? Math.round((s!.bull / total) * 100) : null;
-          const up = p.change >= 0;
+        {markets.length === 0 && <p className="px-1 font-mono text-[11px] text-fg-muted">loading coins…</p>}
+        {markets.length > 0 && rows.length === 0 && (
+          <p className="px-1 font-mono text-[11px] text-fg-muted">{`no match for "${q}"`}</p>
+        )}
+        {rows.map((c) => {
+          const change = c[tf];
+          const up = change >= 0;
+          const s = sent.get(c.symbol);
+          const tot = s ? s.bull + s.bear : 0;
+          const bullPct = tot >= MIN_SENTIMENT_SAMPLE ? Math.round((s!.bull / tot) * 100) : null;
           return (
-            <div key={p.symbol} className="flex items-center justify-between rounded-md border border-line bg-elevated/40 px-2.5 py-1.5">
-              <span className="flex min-w-0 items-center gap-2">
-                <span className="font-mono text-sm font-semibold text-fg">{p.symbol}</span>
-                <span className="font-mono text-[11px] tabular-nums text-fg-muted">${fmtCoin(p.price)}</span>
-              </span>
-              <span className="flex shrink-0 items-center gap-2.5">
+            <div key={c.id} className="flex items-center gap-2 rounded-md border border-line bg-elevated/40 px-2 py-1.5">
+              <img src={c.image} alt="" width={16} height={16} loading="lazy" className="h-4 w-4 shrink-0 rounded-full" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="font-mono text-[13px] font-bold text-fg">{c.symbol}</span>
+                  <span className="truncate font-mono text-[10px] tabular-nums text-fg-muted">${fmtCoin(c.price)}</span>
+                </div>
                 {bullPct != null && (
-                  <span className={`font-mono text-[10px] font-bold ${bullPct > 55 ? "text-pos" : bullPct < 45 ? "text-neg" : "text-fg-dim"}`}>
+                  <span className={`font-mono text-[9px] font-bold ${bullPct > 55 ? "text-pos" : bullPct < 45 ? "text-neg" : "text-fg-dim"}`}>
                     chat {bullPct}% bull
                   </span>
                 )}
-                <span className={`font-mono text-xs font-bold tabular-nums ${up ? "text-pos" : "text-neg"}`}>
-                  {up ? "▲" : "▼"}
-                  {Math.abs(p.change).toFixed(2)}%
-                </span>
+              </div>
+              <Sparkline points={c.spark} up={c.ch7d >= 0} />
+              <span className={`w-[50px] shrink-0 text-right font-mono text-[11px] font-bold tabular-nums ${up ? "text-pos" : "text-neg"}`}>
+                {up ? "▲" : "▼"}
+                {Math.abs(change).toFixed(2)}%
               </span>
             </div>
           );

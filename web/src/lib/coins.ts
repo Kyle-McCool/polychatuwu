@@ -54,6 +54,52 @@ export async function getCoin(sym: string): Promise<Coin | null> {
   }
 }
 
+// Rich market data for the Coins terminal (keyless CoinGecko /coins/markets): price, 1h/24h/7d
+// change, market cap, volume, a 7-day sparkline, and the coin icon. Cached + shared.
+export type MarketCoin = {
+  id: string;
+  symbol: string;
+  name: string;
+  price: number;
+  image: string;
+  ch1h: number;
+  ch24h: number;
+  ch7d: number;
+  mcap: number;
+  vol: number;
+  spark: number[];
+};
+
+let marketsCache: { at: number; data: MarketCoin[] } | null = null;
+
+export async function fetchMarkets(): Promise<MarketCoin[]> {
+  if (marketsCache && Date.now() - marketsCache.at < 60000) return marketsCache.data;
+  try {
+    const r = await fetch(
+      "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d",
+    );
+    if (!r.ok) throw new Error(`markets ${r.status}`);
+    const j = await r.json();
+    const data: MarketCoin[] = (Array.isArray(j) ? j : []).map((c: any) => ({
+      id: c.id,
+      symbol: (c.symbol || "").toUpperCase(),
+      name: c.name || "",
+      price: c.current_price ?? 0,
+      image: c.image || "",
+      ch1h: c.price_change_percentage_1h_in_currency ?? 0,
+      ch24h: c.price_change_percentage_24h_in_currency ?? c.price_change_percentage_24h ?? 0,
+      ch7d: c.price_change_percentage_7d_in_currency ?? 0,
+      mcap: c.market_cap ?? 0,
+      vol: c.total_volume ?? 0,
+      spark: ((c.sparkline_in_7d && c.sparkline_in_7d.price) || []).filter((x: number) => Number.isFinite(x)),
+    }));
+    if (data.length) marketsCache = { at: Date.now(), data };
+    return data;
+  } catch {
+    return marketsCache?.data ?? []; // keep last good data on a transient failure
+  }
+}
+
 export function fmtPrice(p: number): string {
   if (p >= 1000) return p.toLocaleString(undefined, { maximumFractionDigits: 0 });
   if (p >= 1) return p.toFixed(2);
