@@ -344,17 +344,21 @@ export function Overlay() {
  * source clips the right rail. Transparent for OBS; `?solid` paints the base to preview.
  */
 function Stage({ children, solid }: { children: React.ReactNode; solid: boolean }) {
-  // Fit the fixed 1920×1080 design to the source. Guard the 0×0 window OBS/preview can briefly
-  // report at mount (Math.min(0/1920,…) = 0 would make the overlay invisible) by falling back to
-  // 1 until real dimensions arrive, and track size via both resize + ResizeObserver so a live
-  // source-resize is picked up reliably.
-  const fit = () => {
+  // The overlay is designed 1920px wide. We scale it by WIDTH to fit the source, and let the
+  // design-space height be whatever fills the source height (viewport height ÷ scale). The flex
+  // column then fills top to bottom — ticker pinned to the very top edge, Polymarket scroll to the
+  // very bottom — so there is NO letterbox / dead space at any source aspect ratio, and because the
+  // whole 1920-wide design scales to exactly the source width nothing clips horizontally either. At
+  // a 16:9 source this is precisely the 1920×1080 design. Guards a 0-width mount (OBS/preview can
+  // briefly report one) and tracks size via resize + ResizeObserver for reliable live-resize.
+  const measure = () => {
     const w = window.innerWidth, h = window.innerHeight;
-    return w > 0 && h > 0 ? Math.min(w / 1920, h / 1080) : 1;
+    const scale = w > 0 ? w / 1920 : 1;
+    return { scale, height: scale > 0 ? h / scale : 1080 };
   };
-  const [scale, setScale] = useState(() => (typeof window === "undefined" ? 1 : fit()));
+  const [m, setM] = useState(() => (typeof window === "undefined" ? { scale: 1, height: 1080 } : measure()));
   useLayoutEffect(() => {
-    const apply = () => setScale(fit());
+    const apply = () => setM(measure());
     apply();
     window.addEventListener("resize", apply);
     const ro = new ResizeObserver(apply);
@@ -365,14 +369,11 @@ function Stage({ children, solid }: { children: React.ReactNode; solid: boolean 
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  // absolute-center + translate(-50%,-50%) before scaling: this centers correctly even though
-  // the 1920×1080 stage is bigger than the source viewport (grid/place-items won't center an
-  // oversized child). Default transform-origin (center) keeps it pinned to the viewport center.
   return (
     <div className="fixed inset-0 overflow-hidden">
       <div
-        className={`absolute left-1/2 top-1/2 overflow-hidden text-white ${solid ? "bg-base" : "bg-transparent"}`}
-        style={{ width: 1920, height: 1080, transform: `translate(-50%, -50%) scale(${scale})` }}
+        className={`absolute left-0 top-0 origin-top-left overflow-hidden text-white ${solid ? "bg-base" : "bg-transparent"}`}
+        style={{ width: 1920, height: m.height, transform: `scale(${m.scale})` }}
       >
         {children}
       </div>

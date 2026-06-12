@@ -47,7 +47,7 @@ function ObsSetup() {
     <>In OBS, add a <span className="text-fg">Browser</span> source and paste the URL above.</>,
     <>
       In its properties, set <span className="text-fg">Width 1920</span> and <span className="text-fg">Height 1080</span>
-      {" "}— not the <span className="text-fg">800 × 600</span> default, or the right side gets cut off.
+      {" "}to match your canvas. It scales to fit any size, but 1920 × 1080 stays sharpest.
     </>,
     <>Leave the background transparent and place it over your scene.</>,
   ];
