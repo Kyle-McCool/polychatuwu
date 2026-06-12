@@ -1,5 +1,6 @@
 import { MessageSquare } from "lucide-react";
 import type { SourceStatus } from "../lib/types";
+import { channelLabel } from "../lib/parseChannel";
 import { PlatformIcon } from "./ui";
 import { useStable } from "../hooks/useStable";
 
@@ -36,7 +37,7 @@ export function BottomBar({
           live.map((s) => (
             <span key={s.platform + s.channel} className="flex items-center gap-1">
               <PlatformIcon platform={s.platform} size={11} />
-              <span className="text-fg-dim">{s.channel}</span>
+              <span className="text-fg-dim">{channelLabel(s.platform, s.channel)}</span>
             </span>
           ))
         )}

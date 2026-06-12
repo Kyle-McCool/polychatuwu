@@ -1,5 +1,6 @@
 import { ExternalLink } from "lucide-react";
 import type { SourceStatus } from "../lib/types";
+import { channelLabel } from "../lib/parseChannel";
 import { PlatformIcon } from "./ui";
 import { ThemeToggle } from "./ThemeToggle";
 import { useStable } from "../hooks/useStable";
@@ -58,7 +59,7 @@ export function StatusBar({
             >
               <span className="h-1.5 w-1.5 rounded-full" style={{ background: DOT[s.state] }} />
               <PlatformIcon platform={s.platform} size={12} />
-              <span className="font-mono text-[11px] text-fg-dim">{s.channel}</span>
+              <span className="font-mono text-[11px] text-fg-dim">{channelLabel(s.platform, s.channel)}</span>
             </span>
           ))}
         </div>

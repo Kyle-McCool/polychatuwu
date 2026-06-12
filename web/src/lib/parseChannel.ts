@@ -19,6 +19,26 @@ export function broadcastId(channel: string): string | null {
   return m ? m[1] : null;
 }
 
+/**
+ * A clean, human label for a source chip. Twitch / Kick are already plain handles; an X source
+ * can be a profile, a post URL, or a raw broadcast id, so normalize: a broadcast shows "X live",
+ * a profile / post shows "@handle", and a bare broadcast id (mixed-case base62) falls back to
+ * "X live" rather than dumping the id into the toolbar.
+ */
+export function channelLabel(platform: Platform, channel: string): string {
+  const c = (channel || "").trim();
+  if (platform !== "x") return c;
+  if (broadcastId(c)) return "X live"; // x.com/i/broadcasts/<id> or /spaces/<id>
+  const inUrl = c.match(/(?:x|twitter)\.com\/(@?[A-Za-z0-9_]{1,15})(?:\/|$)/i);
+  if (inUrl) return "@" + inUrl[1].replace(/^@/, "");
+  const bare = c.replace(/^@/, "");
+  // a real handle is <= 15 chars and not the long, mixed-case id of a broadcast
+  if (/^[A-Za-z0-9_]{1,15}$/.test(bare) && !(bare.length >= 10 && /[a-z]/.test(bare) && /[A-Z]/.test(bare))) {
+    return "@" + bare;
+  }
+  return "X live";
+}
+
 export function parseChannelInput(raw: string, fallback: Platform): ChannelConfig | null {
   const s = raw.trim();
   if (!s) return null;
