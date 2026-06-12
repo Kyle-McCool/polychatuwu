@@ -2,7 +2,7 @@ import { useRef, useState, type ReactNode } from "react";
 import { MonitorPlay, Captions, Tv, Copy, Check, ExternalLink } from "lucide-react";
 import type { OverlayConfig, OverlayFeature } from "../lib/types";
 import { usePersisted } from "../hooks/usePersisted";
-import { Switch, Input, SegmentedControl, Button } from "./ui";
+import { Switch, Input, Button } from "./ui";
 
 const FEATURES: { key: OverlayFeature; label: string }[] = [
   { key: "index", label: "Chat Hype / Mood bar" },
@@ -56,20 +56,35 @@ function ObsSetup() {
         </span>
       </Title>
 
-      <SegmentedControl
-        className="w-full"
-        value={ownVideo ? "own" : "frame"}
-        onChange={(v) => setOwnVideo(v === "own")}
-        options={[
-          { value: "frame", label: "Show a stream", title: "Embed a connected stream inside the broadcast frame" },
-          { value: "own", label: "My own video", title: "Transparent center so you composite your game or cam in OBS" },
-        ]}
-      />
-      <p className="mt-1.5 px-0.5 font-mono text-[9px] leading-relaxed text-fg-muted">
-        {ownVideo
-          ? "transparent center, so your game or cam shows through. the widgets float over your OBS scene."
-          : "a connected stream shows inside the frame. good for a commentary or reaction setup."}
-      </p>
+      <div className="flex flex-col gap-1">
+        {[
+          { own: false, label: "Show a stream in the frame", desc: "the connected stream shows inside the frame" },
+          { own: true, label: "I stream my own video", desc: "transparent center, widgets float over your OBS scene" },
+        ].map((o) => {
+          const active = ownVideo === o.own;
+          return (
+            <button
+              key={String(o.own)}
+              onClick={() => setOwnVideo(o.own)}
+              className={`flex items-start gap-2 rounded-md border px-2 py-1.5 text-left outline-none transition focus-visible:ring-2 focus-visible:ring-accent/50 ${
+                active ? "border-accent/50 bg-accent/[0.08]" : "border-line bg-elevated/40 hover:bg-elevated"
+              }`}
+            >
+              <span
+                className={`mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border ${
+                  active ? "border-accent bg-accent" : "border-fg-muted"
+                }`}
+              >
+                {active && <span className="h-1.5 w-1.5 rounded-full bg-accent-ink" />}
+              </span>
+              <span className="min-w-0">
+                <span className="block text-[12px] font-semibold text-fg">{o.label}</span>
+                <span className="block font-mono text-[9px] leading-snug text-fg-muted">{o.desc}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
       <div className="mt-2 flex items-center gap-1.5">
         <code className="min-w-0 flex-1 truncate rounded-md border border-line bg-base/60 px-2 py-1.5 font-mono text-[11px] text-fg-dim">{url}</code>
